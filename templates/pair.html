@@ -1,0 +1,193 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+.var {
+  font-weight: bold;
+  color: darkblue;
+}</style>
+  <html lang="en">
+
+    <head>
+      <meta charset="UTF-8">
+      <title>Title</title>
+    </head>
+
+    <body>
+
+
+      <h1>Symbol panel</h1>
+
+      <form action="/form_create_trade" method="post">
+        <label for="inputField">
+          Create trade:
+        </label>
+
+        <input type="text" id="inputField" name="inputField">
+        <input type="submit" value="Send data">
+      </form>
+
+      <br>
+
+      {% for position in positions %}
+
+        <form action="/submit" method="post">
+
+          <strong>
+            <span style="display: inline-block; width: 100px; text-align: right;">
+              {{ position.symbol }}
+            </span>
+          </strong>
+
+          {% if position.side == 'Buy' %}
+            📈
+          {% else %}
+            📉
+          {% endif %}
+
+          <button
+            type="submit"
+            name="myData"
+            value="{'action':'cancel_trade','symbol':'{{ position.symbol }}'}"
+          >
+            &nbsp;Cancel trade
+          </button>
+
+          <button
+            type="submit"
+            name="myData"
+            value="{'action':'set_sl_breakeven','symbol':'{{ position.symbol }}'}"
+          >
+            &nbsp;SL Breakeven
+          </button>
+
+          <button
+            type="submit"
+            name="myData"
+            value="{'action':'cancel_add_orders','symbol':'{{ position.symbol }}'}"
+          >
+            &nbsp;Cancel add orders
+          </button>
+
+          {% if position.unrealisedPnl|int > 0 %}
+            &nbsp;🟢&nbsp;<span style="display: inline-block; width: 30px; text-align: right;">{{position.unrealisedPnl|float|round(2, 'floor')}}</span>
+          {% else %}
+            &nbsp;🔴&nbsp;<span style="display: inline-block; width: 30px; text-align: right;">{{position.unrealisedPnl|float|round(2, 'floor')}}</span>
+          {% endif %}
+
+        </form>
+      {% endfor %}
+      <h2>Position summary</h2>
+
+<table style="margin: 0 auto;">
+  <tr>
+    <td style="text-align: right;"><b>Symbol:</b></td>
+    <td style="text-align: left;"><span class="var">{{position.symbol}}</span></td>
+  </tr>
+
+  <tr>
+    <td style="text-align: right;"><b>Side:</b></td>
+    <td style="text-align: left;"><span class="var">{{position.side}}</span></td>
+  </tr>
+
+  <tr>
+    <td style="text-align: right;"><b>Size:</b></td>
+    <td style="text-align: left;"><span class="var">{{position.size}}</span></td>
+  </tr>
+
+  <tr>
+    <td style="text-align: right;"><b>Average Price:</b></td>
+    <td style="text-align: left;"><span class="var">{{position.avgPrice}}</span></td>
+  </tr>
+
+  <tr>
+    <td style="text-align: right;"><b>Position Value:</b></td>
+    <td style="text-align: left;"><span class="var">{{position.positionValue}}</span></td>
+  </tr>
+
+  <tr>
+    <td style="text-align: right;"><b>Leverage:</b></td>
+    <td style="text-align: left;"><span class="var">{{position.leverage}}</span></td>
+  </tr>
+
+  <tr>
+    <td style="text-align: right;"><b>Margin Balance:</b></td>
+    <td style="text-align: left;"><span class="var">{{position.positionBalance}}</span></td>
+  </tr>
+
+  <tr>
+    <td style="text-align: right;"><b>Mark Price:</b></td>
+    <td style="text-align: left;"><span class="var">{{position.markPrice}}</span></td>
+  </tr>
+
+  <tr>
+    <td style="text-align: right;"><b>Liquidation Price:</b></td>
+    <td style="text-align: left;"><span class="var">{{position.liqPrice}}</span></td>
+  </tr>
+
+  <tr>
+    <td style="text-align: right;"><b>Stop Loss:</b></td>
+    <td style="text-align: left;"><span class="var">{{position.stopLoss}}</span></td>
+  </tr>
+
+  <tr>
+    <td style="text-align: right;"><b>Unrealized P/L:</b></td>
+    <td style="text-align: left;"><span class="var">{{position.unrealisedPnl}}</span></td>
+  </tr>
+
+  <tr>
+    <td style="text-align: right;"><b>Realized P/L:</b></td>
+    <td style="text-align: left;"><span class="var">{{position.cumRealisedPnl}}</span></td>
+  </tr>
+
+</table>
+
+
+    <h2>Ticker summary</h2>
+    <table style="margin: 0 auto;">
+  <tr>
+    <td style="text-align: right;"><b>Mark Price:</b></td>
+    <td style="text-align: left;"><span class="var">{{ticker.markPrice}}</span></td>
+  </tr>
+
+  <tr>
+    <td style="text-align: right;"><b>24hr Prev Price:</b></td>
+    <td style="text-align: left;"><span class="var">{{ticker.prevPrice24h}}</span></td>
+  </tr>
+
+  <tr>
+    <td style="text-align: right;"><b>24hr Price Change:</b></td>
+    <td style="text-align: left;"><span class="var">{{ticker.price24hPcnt}}</span></td>
+  </tr>
+
+  <tr>
+    <td style="text-align: right;"><b>24hr High Price:</b></td>
+    <td style="text-align: left;"><span class="var">{{ticker.highPrice24h}}</span></td>
+  </tr>
+
+  <tr>
+    <td style="text-align: right;"><b>24hr Low Price:</b></td>
+    <td style="text-align: left;"><span class="var">{{ticker.lowPrice24h}}</span></td>
+  </tr>
+
+  <tr>
+    <td style="text-align: right;"><b>1hr Prev Price:</b></td>
+    <td style="text-align: left;"><span class="var">{{ticker.prevPrice1h}}</span></td>
+  </tr>
+
+  <tr>
+    <td style="text-align: right;"><b>24hr Volume:</b></td>
+    <td style="text-align: left;"><span class="var">{{ticker.volume24h}}</span></td>
+  </tr>
+
+  <tr>
+    <td style="text-align: right;"><b>Funding Rate:</b></td>
+    <td style="text-align: left;"><span class="var">{{ticker.fundingRate}}</span></td>
+  </tr>
+
+</table>
+    </body>
+
+  </html>
+
+{% endblock %}

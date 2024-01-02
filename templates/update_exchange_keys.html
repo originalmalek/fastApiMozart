@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block content %}
+<form action="/update_exchange_keys" method="post">
+    <div class="container">
+
+        <p>Please fill in this form to login into account.</p>
+        <hr>
+        <label for="api_key"><b>API Key</b></label>
+        <input type="text" placeholder="Enter API Key" name="api_key" required>
+        <label for="api_secret"><b>API Secret</b></label>
+        <input type="api_secret" placeholder="Enter API Secret" name="api_secret" required>
+        <hr>
+        <button type="submit">Add exchange keys</button>
+    </div>
+</form>
+<br>
+
+{% endblock %}
