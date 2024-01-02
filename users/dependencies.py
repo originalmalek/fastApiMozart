@@ -38,7 +38,7 @@ async def validate_user(token: Annotated[str, Header()]):
 async def create_token(username: str, password: str):
     user = await db_queries.get_user_by_username(username)
 
-    if user is None or not verify_token(password, user.password):
+    if user is None or not verify_password(password, user.password):
         # TODO: raise custom Exception
         return None, None
 
@@ -47,7 +47,7 @@ async def create_token(username: str, password: str):
     return token, expiration_time
 
 
-def verify_token(plain_password, hash_password):
+def verify_password(plain_password, hash_password):
     return pwd_context.verify(plain_password, hash_password)
 
 
