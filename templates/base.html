@@ -41,11 +41,14 @@
 
   <header>
     <nav>
+      {% if is_public_page %}
       <a href="/">Register</a>
       <a href="login">Login</a>
+      {% else %}
       <a href="exchange_keys">Manage API keys</a>
       <a href="panel">Panel</a>
       <a href="logout">Logout</a>
+      {% endif %}
     </nav>
   </header>
 
