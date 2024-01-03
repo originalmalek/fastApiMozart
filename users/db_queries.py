@@ -27,8 +27,14 @@ async def get_exchange_keys(user_id):
         return None
 
 
-async def add_exchange_keys(api_key, api_secret, user_id):
+async def update_exchange_keys(api_key, api_secret, user_id):
     try:
+        keys = session.query(ExchangeKeys).filter(ExchangeKeys.id_user == user_id).one()
+        keys.api_key = api_key
+        keys.api_secret = api_secret
+        session.commit()
+        return True
+    except NoResultFound:
         keys = ExchangeKeys(api_key=api_key, api_secret=api_secret, id_user=user_id)
         session.add(keys)
         session.commit()
@@ -36,17 +42,3 @@ async def add_exchange_keys(api_key, api_secret, user_id):
     except IntegrityError:
         session.rollback()
         return False
-
-
-async def update_exchange_keys(api_key, api_secret, user_id):
-    try:
-        keys = session.query(ExchangeKeys).filter(ExchangeKeys.id_user == user_id).one()
-        keys.api_key=api_key
-        keys.api_secret=api_secret
-        session.commit()
-        return True
-    except IntegrityError:
-        session.rollback()
-        return False
-    except NoResultFound:
-        return None
