@@ -19,9 +19,10 @@ async def create_trade(symbol: Symbol, keys: Annotated[ExchangeKeys, Depends(che
         response = mozart_deal.cancel_trade(symbol=symbol.symbol, api_key=keys.api_key, api_secret=keys.api_secret)
     except FailedRequestError:
         raise_conflict_error(message='Failed access to the bybit API. Please update your keys')
-
+    except InvalidRequestError:
+        raise_conflict_error(message='Invalid request. Please check your request')
     if response is False:
-        raise_conflict_error(message='Trade is not canceled')
+        raise_conflict_error(message='Trade is not open')
 
     return {'status': 'success', 'message': 'Trade is cancelled'}
 
