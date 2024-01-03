@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-
+<link rel="shortcut icon" href="data:image/x-icon;," type="image/x-icon">
 <head>
   <meta charset="UTF-8">
   <title>My Website</title>
@@ -50,6 +50,13 @@
   </header>
 
   <main>
+      {% if status == 'error' %}
+<p style="color:red;">{{ message }}</p>
+{% endif %}
+{% if status == 'success' %}
+<p style="color:darkgreen;">{{ message }}</p>
+{% endif %}
+
     {% block content %}
 
     {% endblock %}

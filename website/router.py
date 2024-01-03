@@ -7,6 +7,8 @@ from pybit.exceptions import FailedRequestError, InvalidRequestError
 import users.schemas
 import users.dependencies
 import users.router
+
+
 from utils import mozart_deal
 from utils.bybit_api import get_position_info, get_tickers
 
@@ -41,7 +43,6 @@ async def process_form_data(request: Request, inputField: str = Form(...)):
 
 @website.post('/submit')
 async def process_form_data(request: Request):
-    # Получите данные из формы
     form_data = await request.form()
     input_field_value = eval(form_data.get('myData'))
     action = input_field_value['action']
@@ -73,13 +74,14 @@ async def create_user(request: Request, params=None):
                                       {'request': request, 'status': params['status'], 'message': params['message']})
 
 
-@website.post("/login_user")
+@website.post("/login")
 async def login_user(request: Request, username: str = Form(...), password: str = Form(...)):
     token, _ = await users.dependencies.create_token(username, password)
-    # if token is None:
-    #     TODO: render error message on the web page
-    #     response = RedirectResponse('/login', status_code=status.HTTP_302_FOUND)
-    #     return response
+    if token is None:
+        response = templates.TemplateResponse('login.html', {'request': request, 'status': 'error',
+                                                         'message': 'Wrong login or password'})
+        response.delete_cookie(key='access_token')
+        return response
     response = RedirectResponse('/panel', status_code=status.HTTP_302_FOUND)
     response.set_cookie(key='access_token', value=token)
     return response
@@ -87,16 +89,34 @@ async def login_user(request: Request, username: str = Form(...), password: str 
 
 @website.get("/login")
 async def login(request: Request):
-    params = {'status': '', 'message': ''}
-
     access_token = request.cookies.get('access_token')
+
     try:
         await users.dependencies.validate_user(token=access_token)
         response = RedirectResponse('/panel', status_code=status.HTTP_302_FOUND)
         return response
     except:
-        return templates.TemplateResponse('login.html', {'request': request, 'status': params['status'],
-                                                         'message': params['message']})
+        response = templates.TemplateResponse('login.html', {'request': request,
+                                                             'status': request.session.pop('status', None),
+                                                             'message': request.session.pop('message', None)})
+        response.delete_cookie('access_token')
+        return response
+
+
+@website.get("/logout")
+async def logout(request: Request):
+    access_token = request.cookies.get('access_token')
+    if access_token:
+        request.session['status'] = 'success'
+        request.session['message'] = 'Logout successful'
+        response = RedirectResponse('/login', status_code=status.HTTP_303_SEE_OTHER)
+        response.delete_cookie(key='access_token')
+        return response
+    else:
+        response = RedirectResponse('/login', status_code=status.HTTP_303_SEE_OTHER)
+        response.delete_cookie(key='access_token')
+        return response
+
 
 
 @website.get('/panel')
@@ -181,13 +201,6 @@ async def exchange_keys_page(request: Request):
         return templates.TemplateResponse('exchange_keys.html', {'request': request})
     except HTTPException:
         return RedirectResponse('/login', status_code=status.HTTP_302_FOUND)
-
-
-@website.get("/logout")
-async def logout(request: Request):
-    response = RedirectResponse('/login', status_code=status.HTTP_302_FOUND)
-    response.delete_cookie(key='access_token')
-    return response
 
 
 @website.get("/{symbol}")

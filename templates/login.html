@@ -2,14 +2,10 @@
 
 {% block content %}
 <h1>Enter to the panel</h1>
-{% if status == 'error' %}
-<p style="color:red;">{{ message }}</p>
-{% else %}
-<p style="color:darkgreen;">{{ message }}</p>
-{% endif %}
+
 <p>Please fill in this form to login into account.</p>
 <hr>
-<form action="/login_user" method="post">
+<form action="/login" method="post">
     <div class="container">
         <label for="username"><b>Username</b></label>
         <input type="text" placeholder="Enter Username" name="username" required>
