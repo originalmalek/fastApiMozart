@@ -40,7 +40,6 @@ async def create_token(username: str, password: str):
     user = await db_queries.get_user_by_username(username)
 
     if user is None or not verify_password(password, user.password):
-        # TODO: raise custom Exception
         return None, None
 
     expiration_time = datetime.utcnow() + timedelta(access_token_expire)
