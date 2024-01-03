@@ -13,7 +13,7 @@ from .schemas import User
 env = Env()
 env.read_env()
 
-secret_key = env('SECRET_KEY')
+algorithm_key = env('ALGORITHM_KEY')
 algorithm = env('ALGORITHM')
 access_token_expire = env.int('ACCESS_TOKEN_EXPIRES')
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -24,7 +24,7 @@ async def create_user(username, password):
 
 async def validate_user(token: Annotated[str, Header()]):
     try:
-        decrypted_user_data = jwt.decode(token, key=secret_key, algorithms=algorithm)
+        decrypted_user_data = jwt.decode(token, key=algorithm_key, algorithms=algorithm)
     except DecodeError:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, detail={'status': 'error', 'message': 'Invalid token'})
     except ExpiredSignatureError:
@@ -52,7 +52,7 @@ def verify_password(plain_password, hash_password):
 
 
 def create_jwt_token(data: dict):
-    token = jwt.encode(data, key=secret_key, algorithm=algorithm)
+    token = jwt.encode(data, key=algorithm_key, algorithm=algorithm)
     return token
 
 
