@@ -1,16 +1,13 @@
 {% extends "base.html" %}
 
 {% block content %}
-<form action="/register_user" method="post">
+<form action="/register_form" method="post">
     <div class="container">
         <h1>Register</h1>
-        {% if message %}
-        <p style="color:red;">{{ message }}</p>
-        {% endif %}
         <p>Please fill in this form to create an account.</p>
         <hr>
         <label for="username"><b>Username</b></label>
-        <input type="text" placeholder="Enter Username" name="username" required>
+        <input type="username" placeholder="Enter Username" name="username" required>
         <label for="password"><b>Password</b></label>
         <input type="password" placeholder="Enter Password" name="password" required>
         <hr>
