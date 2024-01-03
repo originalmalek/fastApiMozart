@@ -145,84 +145,79 @@ def set_leverage(symbol: str, api_key: str, api_secret: str):
 
 
 def create_trade(trade, api_key, api_secret):
-    try:
-        set_leverage(trade['symbol'], api_key, api_secret)
-        place_orders(trade, api_key, api_secret)
-        return True
-    except Exception as e:
-        return str(e)
+    set_leverage(trade['symbol'], api_key, api_secret)
+    place_orders(trade, api_key, api_secret)
+    return True
 
 
 def cancel_trade(symbol, api_key, api_secret):
     symbol = symbol.upper()
-    try:
-        open_trade = bybit_api.get_position_info(symbol=symbol,
-                                                 api_key=api_key,
-                                                 api_secret=api_secret)
-        if open_trade['result']['list'][0]['side'] == 'None':
-            return False
-        trade_side = open_trade['result']['list'][0]['side']
-        trade_amount = open_trade['result']['list'][0]['size']
 
-        bybit_api.open_order(symbol=symbol,
-                             side='Sell' if trade_side == 'Buy' else 'Buy',
-                             quantity=trade_amount,
-                             order_type='Market',
-                             price=None,
-                             api_key=api_key,
-                             api_secret=api_secret)
+    open_trade = bybit_api.get_position_info(symbol=symbol,
+                                             api_key=api_key,
+                                             api_secret=api_secret)
+    if open_trade['result']['list'][0]['side'] == 'None':
+        return False
+    trade_side = open_trade['result']['list'][0]['side']
+    trade_amount = open_trade['result']['list'][0]['size']
 
-        bybit_api.cancel_all_orders(symbol=symbol,
-                                    api_key=api_key,
-                                    api_secret=api_secret)
-        return True
-    except InvalidRequestError as e:
-        return str(e)
+    bybit_api.open_order(symbol=symbol,
+                         side='Sell' if trade_side == 'Buy' else 'Buy',
+                         quantity=trade_amount,
+                         order_type='Market',
+                         price=None,
+                         api_key=api_key,
+                         api_secret=api_secret)
+
+    bybit_api.cancel_all_orders(symbol=symbol,
+                                api_key=api_key,
+                                api_secret=api_secret)
+    return True
+
+
 
 
 def cancel_add_orders(symbol, api_key, api_secret):
     symbol = symbol.upper()
-    try:
-        open_trade = bybit_api.get_position_info(symbol=symbol,
-                                                 api_key=api_key,
-                                                 api_secret=api_secret)
 
-        if open_trade['result']['list'][0]['side'] == 'None':
-            return False
+    open_trade = bybit_api.get_position_info(symbol=symbol,
+                                             api_key=api_key,
+                                             api_secret=api_secret)
 
-        trade_side = open_trade['result']['list'][0]['side']
+    if open_trade['result']['list'][0]['side'] == 'None':
+        return False
 
-        open_orders = bybit_api.get_open_orders(symbol=symbol, api_key=api_key, api_secret=api_secret)
+    trade_side = open_trade['result']['list'][0]['side']
 
-        for open_order in open_orders['result']['list']:
-            if trade_side == open_order['side']:
-                bybit_api.cancel_order(symbol=symbol,
-                                       order_id=open_order['orderId'],
-                                       api_secret=api_secret,
-                                       api_key=api_key)
+    open_orders = bybit_api.get_open_orders(symbol=symbol, api_key=api_key, api_secret=api_secret)
 
-        return True
+    for open_order in open_orders['result']['list']:
+        if trade_side == open_order['side']:
+            bybit_api.cancel_order(symbol=symbol,
+                                   order_id=open_order['orderId'],
+                                   api_secret=api_secret,
+                                   api_key=api_key)
 
-    except InvalidRequestError as e:
-        return str(e)
+    return True
+
+
 
 
 def set_sl_breakeven(symbol, api_key, api_secret):
     symbol = symbol.upper()
-    try:
-        open_trade = bybit_api.get_position_info(symbol=symbol,
-                                                 api_key=api_key,
-                                                 api_secret=api_secret)
 
-        if open_trade['result']['list'][0]['side'] == 'None':
-            return False
-        trade_avg_price = open_trade['result']['list'][0]['avgPrice']
-        trade_amount = open_trade['result']['list'][0]['size']
-        bybit_api.trading_stop(symbol=symbol,
-                               sl_size=trade_amount,
-                               sl_price=trade_avg_price,
-                               api_key=api_key,
-                               api_secret=api_secret)
-        return True
-    except InvalidRequestError as e:
-        return str(e)
+    open_trade = bybit_api.get_position_info(symbol=symbol,
+                                             api_key=api_key,
+                                             api_secret=api_secret)
+
+    if open_trade['result']['list'][0]['side'] == 'None':
+        return False
+    trade_avg_price = open_trade['result']['list'][0]['avgPrice']
+    trade_amount = open_trade['result']['list'][0]['size']
+    bybit_api.trading_stop(symbol=symbol,
+                           sl_size=trade_amount,
+                           sl_price=trade_avg_price,
+                           api_key=api_key,
+                           api_secret=api_secret)
+    return True
+
