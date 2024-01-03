@@ -15,12 +15,6 @@
 
     <body>
 
-      {% if status == 'error' %}
-        <p style="color:red;">{{ message }}</p>
-      {% else %}
-        <p style="color:green;">{{ message }}</p>
-      {% endif %}
-
       <h1>Trade panel</h1>
 
       <form action="/form_create_trade" method="post">
