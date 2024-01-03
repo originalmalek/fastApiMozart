@@ -13,6 +13,7 @@ from .schemas import User
 env = Env()
 env.read_env()
 
+middleware_key = env('MIDDLEWARE_KEY')
 algorithm_key = env('ALGORITHM_KEY')
 algorithm = env('ALGORITHM')
 access_token_expire = env.int('ACCESS_TOKEN_EXPIRES')
