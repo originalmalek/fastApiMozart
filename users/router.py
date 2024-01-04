@@ -9,7 +9,7 @@ from users import db_queries
 users = APIRouter()
 
 
-@users.get("/get_token")
+@users.get("/token")
 async def get_token(user_data: User):
     user_username = user_data.username
     user_password = user_data.password
@@ -30,7 +30,7 @@ async def register_user(user_data: User):
     return {'status': 'success', 'message': 'User successfully registered'}
 
 
-@users.post('/update_keys')
+@users.post('/keys')
 async def update_keys(keys: ExchangeKeys, user: Annotated[User, Depends(validate_user)]):
     response = await db_queries.update_exchange_keys(api_key=keys.api_key, api_secret=keys.api_secret, user_id=user.id)
     if response is False:
