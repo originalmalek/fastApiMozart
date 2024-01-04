@@ -218,9 +218,22 @@ async def process_form_data(request: Request, inputField: str = Form(...)):
         mozart_deal.create_trade(trade, api_key=keys.api_key, api_secret=keys.api_secret)
         put_session_message(request=request, status='success', message=f'Trade successfully created {trade["symbol"]}')
         return RedirectResponse('/panel', status_code=status.HTTP_302_FOUND)
-    except:
+    except HTTPException:
+        put_session_message(request, status='error', message='Session is expired')
+
+        response = RedirectResponse('/login', status_code=status.HTTP_302_FOUND)
+        response.delete_cookie(key='access_token')
+        return response
+
+    except FailedRequestError:
+        put_session_message(request, status='error', message='Keys are not valid. Please update your Bybit API keys')
+        return RedirectResponse(f'/exchange_keys', status_code=status.HTTP_302_FOUND)
+
+    except InvalidRequestError:
         put_session_message(request=request, status='error', message=f'Trade is not created {trade["symbol"]}')
         return RedirectResponse('/panel', status_code=status.HTTP_302_FOUND)
+
+
 
 
 @website.post('/submit')
