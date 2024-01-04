@@ -242,6 +242,7 @@ async def process_form_data(request: Request):
     input_field_value = eval(form_data.get('myData'))
     action = input_field_value['action']
     symbol = input_field_value['symbol']
+
     try:
         keys = await get_exchange_keys(request)
         api_key = keys.api_key
@@ -252,6 +253,7 @@ async def process_form_data(request: Request):
         response = RedirectResponse('/login', status_code=status.HTTP_302_FOUND)
         response.delete_cookie(key='access_token')
         return response
+
     try:
         if action == 'cancel_trade':
             response = mozart_deal.cancel_trade(symbol=symbol, api_key=api_key, api_secret=api_secret)
