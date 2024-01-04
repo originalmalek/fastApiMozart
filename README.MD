@@ -1,5 +1,6 @@
-# mozart-trade
-A api and web interface for manage signals from Mozart Trade telegram channel
+# fastApiMozart
+
+An api and web interface for manage signals from Mozart Trade telegram channel
 
 Work about project in progress
 Python 3.10
