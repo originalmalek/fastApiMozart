@@ -11,7 +11,7 @@ from users.db_queries import update_exchange_keys
 from utils import mozart_deal
 from utils.bybit_api import get_position_info, get_tickers
 
-website = APIRouter()
+website = APIRouter(include_in_schema=False)
 templates = Jinja2Templates(directory='templates')
 
 
