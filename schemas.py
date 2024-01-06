@@ -21,3 +21,8 @@ class Symbol(BaseModel):
 class CoinsData(BaseModel):
     coins_from: Union[List[str], str]
     coins_to: Union[List[str], str]
+
+
+class StopLoss(BaseModel):
+    symbol: str
+    stop_price: float

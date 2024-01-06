@@ -7,7 +7,7 @@ from pybit.exceptions import FailedRequestError, InvalidRequestError
 from users.dependencies import validate_user, check_exchange_keys
 from users.schemas import User, ExchangeKeys
 from trades.errors import raise_conflict_error
-from schemas import Signal, Symbol, CoinsData
+from schemas import Signal, Symbol, CoinsData, StopLoss
 from utils import mozart_deal, bybit_api
 
 trades = APIRouter()
@@ -27,7 +27,7 @@ async def create_trade(symbol: Symbol, keys: Annotated[ExchangeKeys, Depends(che
     return {'status': 'success', 'message': 'Trade is cancelled'}
 
 
-@trades.post('/set_sl_breakeven')
+@trades.post('/sl_breakeven')
 async def set_sl_breakeven(symbol: Symbol, keys: Annotated[ExchangeKeys, Depends(check_exchange_keys)]):
     try:
         response = mozart_deal.set_sl_breakeven(symbol=symbol.symbol, api_key=keys.api_key, api_secret=keys.api_secret)
@@ -96,7 +96,6 @@ async def create_trade(signal: Signal, keys: Annotated[ExchangeKeys, Depends(che
 
 @trades.get('/prices')
 async def get_price(coins_data: CoinsData, user: Annotated[User, Depends(validate_user)]):
-    dir(cryptocompare)
     response = cryptocompare.get_price(coins_data.coins_from, coins_data.coins_to)
     if not response:
         raise_conflict_error(message='Incorrect data')
@@ -111,3 +110,25 @@ async def get_price(user: Annotated[User, Depends(validate_user)]):
         raise_conflict_error(message='Incorrect data')
 
     return {'status': 'success', 'message': response}
+
+
+@trades.post('/stoploss')
+def set_stop_loss(sl_data: StopLoss, keys: Annotated[ExchangeKeys, Depends(check_exchange_keys)]):
+    symbol = sl_data.symbol
+    stop_price = sl_data.stop_price
+    try:
+        api_key = keys.api_key
+        api_secret = keys.api_secret
+        position = bybit_api.get_position_info(symbol=symbol, api_secret=api_secret, api_key=api_key)
+        print(position)
+        bybit_api.trading_stop(symbol=symbol,
+                               sl_price=stop_price,
+                               api_key=api_key,
+                               api_secret=api_secret,
+                               sl_size=position['result']['list'][0]['size'])
+    except FailedRequestError:
+        raise_conflict_error(message='Failed access to the bybit API. Please update your keys')
+    except InvalidRequestError as e:
+        raise_conflict_error(message=e.message)
+
+    return {'status': 'success', 'message': 'stop_price_updated'}
