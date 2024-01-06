@@ -49,8 +49,6 @@ async def create_token(username: str, password: str):
 
 def verify_password(plain_password, hash_password):
     return pwd_context.verify(plain_password, hash_password)
-
-
 def create_jwt_token(data: dict):
     token = jwt.encode(data, key=algorithm_key, algorithm=algorithm)
     return token
