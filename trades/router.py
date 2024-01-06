@@ -19,8 +19,8 @@ async def create_trade(symbol: Symbol, keys: Annotated[ExchangeKeys, Depends(che
         response = mozart_deal.cancel_trade(symbol=symbol.symbol, api_key=keys.api_key, api_secret=keys.api_secret)
     except FailedRequestError:
         raise_conflict_error(message='Failed access to the bybit API. Please update your keys')
-    except InvalidRequestError:
-        raise_conflict_error(message='Invalid request. Please check your request')
+    except InvalidRequestError as e:
+        raise_conflict_error(message=e.message)
     if response is False:
         raise_conflict_error(message='Trade is not open')
 
@@ -33,6 +33,8 @@ async def set_sl_breakeven(symbol: Symbol, keys: Annotated[ExchangeKeys, Depends
         response = mozart_deal.set_sl_breakeven(symbol=symbol.symbol, api_key=keys.api_key, api_secret=keys.api_secret)
     except FailedRequestError:
         raise_conflict_error(message='Failed access to the bybit API. Please update your keys')
+    except InvalidRequestError as e:
+        raise_conflict_error(message=e.message)
 
     if response is False:
         raise_conflict_error(message='SL Breakeven is not set')
@@ -46,6 +48,8 @@ async def set_sl_breakeven(symbol: Symbol, keys: Annotated[ExchangeKeys, Depends
         response = mozart_deal.cancel_add_orders(symbol=symbol.symbol, api_key=keys.api_key, api_secret=keys.api_secret)
     except FailedRequestError:
         raise_conflict_error(message='Failed access to the bybit API. Please update your keys')
+    except InvalidRequestError as e:
+        raise_conflict_error(message=e.message)
 
     if response is False:
         raise_conflict_error(message='Add orders not canceled')
@@ -59,8 +63,8 @@ async def get_positions(symbol: Symbol, keys: Annotated[ExchangeKeys, Depends(ch
         response = bybit_api.get_position_info(symbol=symbol.symbol, api_key=keys.api_key, api_secret=keys.api_secret)
     except FailedRequestError:
         raise_conflict_error(message='Failed access to the bybit API. Please update your keys')
-    except InvalidRequestError:
-        raise_conflict_error(message='Failed request to the exchange. Please check sends parameters')
+    except InvalidRequestError as e:
+        raise_conflict_error(message=e.message)
     if response is False:
         raise_conflict_error(message='Get position error')
 
@@ -73,8 +77,8 @@ async def get_positions(keys: Annotated[ExchangeKeys, Depends(check_exchange_key
         response = bybit_api.get_position_info(api_key=keys.api_key, api_secret=keys.api_secret)
     except FailedRequestError:
         raise_conflict_error(message='Failed access to the bybit API. Please update your keys')
-    except InvalidRequestError:
-        raise_conflict_error(message='Failed request to the exchange. Please check sends parameters')
+    except InvalidRequestError as e:
+        raise_conflict_error(message=e.message)
     if response is False:
         raise_conflict_error(message='Get position error')
 
@@ -87,7 +91,8 @@ async def create_trade(signal: Signal, keys: Annotated[ExchangeKeys, Depends(che
         response = mozart_deal.create_trade(trade=signal, api_key=keys.api_key, api_secret=keys.api_secret)
     except FailedRequestError:
         raise_conflict_error(message='Failed access to the bybit API. Please update your keys')
-
+    except InvalidRequestError as e:
+        raise_conflict_error(message=e.message)
     if response is False:
         raise_conflict_error(message='Add orders not canceled')
 
