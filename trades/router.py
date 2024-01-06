@@ -131,4 +131,4 @@ def set_stop_loss(sl_data: StopLoss, keys: Annotated[ExchangeKeys, Depends(check
     except InvalidRequestError as e:
         raise_conflict_error(message=e.message)
 
-    return {'status': 'success', 'message': 'stop_price_updated'}
+    return {'status': 'success', 'message': 'stop price updated'}
