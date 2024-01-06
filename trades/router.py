@@ -125,7 +125,6 @@ def set_stop_loss(sl_data: StopLoss, keys: Annotated[ExchangeKeys, Depends(check
         api_key = keys.api_key
         api_secret = keys.api_secret
         position = bybit_api.get_position_info(symbol=symbol, api_secret=api_secret, api_key=api_key)
-        print(position)
         bybit_api.trading_stop(symbol=symbol,
                                sl_price=stop_price,
                                api_key=api_key,
