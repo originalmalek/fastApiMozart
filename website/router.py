@@ -9,7 +9,7 @@ import users.router
 import users.schemas
 from users.db_queries import update_exchange_keys
 from utils import mozart_deal
-from utils.bybit_api import get_position_info, get_tickers
+from utils.bybit_api import get_position_info, get_tickers, trading_stop
 
 website = APIRouter(include_in_schema=False)
 templates = Jinja2Templates(directory='templates')
@@ -136,16 +136,16 @@ async def show_panel(request: Request):
                                                          'message': request.session.pop('message', None)})
     except HTTPException:
         put_session_message(request, status='error', message='Keys are not added. Please add your Bybit API keys')
-        response = RedirectResponse(f'/exchange_keys', status_code=status.HTTP_303_SEE_OTHER)
+        response = RedirectResponse('/exchange_keys', status_code=status.HTTP_303_SEE_OTHER)
 
     except FailedRequestError:
         put_session_message(request, status='error', message='Keys are not valid. Please update your Bybit API keys')
-        response = RedirectResponse(f'/exchange_keys', status_code=status.HTTP_302_FOUND)
+        response = RedirectResponse('/exchange_keys', status_code=status.HTTP_302_FOUND)
 
     except InvalidRequestError:
         put_session_message(request, status='error',
                             message='Wrong request to Bybit API, Please update your Bybit API keys')
-        response = RedirectResponse(f'/exchange_keys', status_code=status.HTTP_302_FOUND)
+        response = RedirectResponse('/exchange_keys', status_code=status.HTTP_302_FOUND)
 
     return response
 
@@ -192,20 +192,22 @@ async def open_trade_page(request: Request, symbol: str):
         api_secret = keys.api_secret
         position = get_position_info(api_key=api_key, api_secret=api_secret, symbol=symbol)['result']['list']
         ticker = get_tickers(symbol=symbol, api_key=api_key, api_secret=api_secret)
-        return templates.TemplateResponse('pair.html', {'request': request, 'positions': position,
-                                                        'ticker': ticker['result']['list'][0], 'position': position[0]})
+        response = templates.TemplateResponse('pair.html', {'request': request, 'positions': position,
+                                                        'ticker': ticker['result']['list'][0], 'position': position[0],
+                                                            'status': request.session.pop('status', None),
+                                                            'message': request.session.pop('message', None)})
 
     except HTTPException:
         put_session_message(request, status='error', message='Keys are not added. Please add your Bybit API keys')
-        response = RedirectResponse(f'/exchange_keys', status_code=status.HTTP_302_FOUND)
+        response = RedirectResponse('/exchange_keys', status_code=status.HTTP_302_FOUND)
 
     except FailedRequestError:
         put_session_message(request, status='error', message='Keys are not valid. Please update your Bybit API keys')
-        response = RedirectResponse(f'/exchange_keys', status_code=status.HTTP_302_FOUND)
+        response = RedirectResponse('/exchange_keys', status_code=status.HTTP_302_FOUND)
 
     except InvalidRequestError:
         put_session_message(request, status='error', message='Wrong request to Bybit API')
-        response = RedirectResponse(f'/panel', status_code=status.HTTP_302_FOUND)
+        response = RedirectResponse('/panel', status_code=status.HTTP_302_FOUND)
 
     return response
 
@@ -227,7 +229,7 @@ async def process_form_data(request: Request, inputField: str = Form(...)):
 
     except FailedRequestError:
         put_session_message(request, status='error', message='Keys are not valid. Please update your Bybit API keys')
-        return RedirectResponse(f'/exchange_keys', status_code=status.HTTP_302_FOUND)
+        return RedirectResponse('/exchange_keys', status_code=status.HTTP_302_FOUND)
 
     except InvalidRequestError:
         put_session_message(request=request, status='error', message=f'Trade is not created {trade["symbol"]}')
@@ -269,16 +271,45 @@ async def process_form_data(request: Request):
 
     except FailedRequestError:
         put_session_message(request, status='error', message='Keys are not valid. Please update your Bybit API keys')
-        return RedirectResponse(f'/exchange_keys', status_code=status.HTTP_302_FOUND)
+        return RedirectResponse('/exchange_keys', status_code=status.HTTP_302_FOUND)
 
     except InvalidRequestError:
         put_session_message(request, status='error', message='Wrong request to Bybit API')
-        return RedirectResponse(f'/panel', status_code=status.HTTP_302_FOUND)
+        return RedirectResponse('/panel', status_code=status.HTTP_302_FOUND)
 
 
     if not response:
         put_session_message(request=request, status='error',
-                            message=f'The trade is not open')
+                            message='The trade is not open')
         return RedirectResponse('/panel', status_code=status.HTTP_302_FOUND)
 
     return RedirectResponse('/panel', status_code=status.HTTP_302_FOUND)
+
+
+@website.post('/set_stop')
+async def set_stop(request: Request, inputField: str = Form(...), symbol: str = Form(...)):
+    try:
+        stop_price = float(inputField)
+        keys = await get_exchange_keys(request)
+        api_key = keys.api_key
+        api_secret = keys.api_secret
+        position = get_position_info(symbol=symbol, api_secret=api_secret, api_key=api_key)
+        trading_stop(symbol=symbol,
+                               sl_price=stop_price,
+                               api_key=api_key,
+                               api_secret=api_secret,
+                               sl_size=position['result']['list'][0]['size'])
+        put_session_message(request, status='success',
+                            message=f'StopLoss successfully updated')
+        return RedirectResponse(f'/{symbol}', status_code=status.HTTP_302_FOUND)
+    except ValueError:
+        put_session_message(request, status='error', message='StopLoss is not updated. Please write a number.')
+        return RedirectResponse(f'/{symbol}', status_code=status.HTTP_302_FOUND)
+
+    except FailedRequestError:
+        put_session_message(request, status='error', message='Keys are not valid. Please update your Bybit API keys')
+        return RedirectResponse('/exchange_keys', status_code=status.HTTP_302_FOUND)
+
+    except InvalidRequestError:
+        put_session_message(request, status='error', message='Wrong request to Bybit API')
+        return RedirectResponse(f'/{symbol}', status_code=status.HTTP_302_FOUND)

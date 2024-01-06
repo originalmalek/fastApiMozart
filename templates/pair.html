@@ -10,7 +10,7 @@
 
     <head>
       <meta charset="UTF-8">
-      <title>Title</title>
+      <title>{{ position.symbol }}</title>
     </head>
 
     <body>
@@ -18,14 +18,15 @@
 
       <h1>Symbol panel</h1>
 
-      <form action="/form_create_trade" method="post">
-        <label for="inputField">
-          Create trade:
-        </label>
+<form action="/set_stop" method="post">
+  <label for="inputField">
+    Set Stop Loss:
+  </label>
 
-        <input type="text" id="inputField" name="inputField">
-        <input type="submit" value="Send data">
-      </form>
+  <input type="text" id="inputField" name="inputField">
+  <input type="hidden" id="symbol" name="symbol" value="{{ position.symbol }}">
+  <input type="submit" value="Send data">
+</form>
 
       <br>
 
