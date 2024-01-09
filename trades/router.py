@@ -10,7 +10,8 @@ from trades.errors import raise_conflict_error
 from schemas import Signal, Symbol, CoinsData, StopLoss
 from utils import mozart_deal, bybit_api
 
-trades = APIRouter()
+trades = APIRouter(prefix='/api',
+                   tags=['Trades'])
 
 
 @trades.post('/cancel_trade')
@@ -109,7 +110,7 @@ async def get_price(coins_data: CoinsData, user: Annotated[User, Depends(validat
 
 
 @trades.get('/exchanges')
-async def get_price(user: Annotated[User, Depends(validate_user)]):
+async def get_exchanges(user: Annotated[User, Depends(validate_user)]):
     response = cryptocompare.get_exchanges()
     if not response:
         raise_conflict_error(message='Incorrect data')

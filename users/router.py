@@ -6,7 +6,7 @@ from .dependencies import validate_user, create_user, create_token
 from .schemas import User, ExchangeKeys
 from users import db_queries
 
-users = APIRouter()
+users = APIRouter(prefix='/api', tags=['Users'])
 
 
 @users.get("/token")
