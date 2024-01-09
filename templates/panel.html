@@ -2,103 +2,103 @@
 
 {% block content %}
 <style>
-.var {
-  font-weight: bold;
-  color: darkblue;
-}</style>
-  <html lang="en">
+    .var {
+        font-weight: bold;
+        color: darkblue;
+    }</style>
+<html lang="en">
 
-    <head>
-      <meta charset="UTF-8">
-      <title>Title</title>
-    </head>
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
 
-    <body>
+<body>
 
-      <h1>Trade panel</h1>
+<h1>Trade panel</h1>
 
-      <form action="/form_create_trade" method="post">
-        <label for="inputField">
-          Create trade:
-        </label>
+<form action="/form_create_trade" method="post">
+    <label for="inputField">
+        Create trade:
+    </label>
 
-        <input type="text" id="inputField" name="inputField">
-        <input type="submit" value="Send data">
-      </form>
+    <input id="inputField" name="inputField" type="text">
+    <input type="submit" value="Send data">
+</form>
 
-      <br>
+<br>
 
-      {% for position in positions %}
+{% for position in positions %}
 
-        <form action="/submit" method="post">
+<form action="/submit" method="post">
 
-          <strong>
+    <strong>
             <span style="display: inline-block; width: 100px; text-align: right;">
               <a href="{{ position.symbol }}">{{ position.symbol }}</a>
             </span>
-          </strong>
+    </strong>
 
-          {% if position.side == 'Buy' %}
-            📈
-          {% else %}
-            📉
-          {% endif %}
+    {% if position.side == 'Buy' %}
+    📈
+    {% else %}
+    📉
+    {% endif %}
 
-          <button
-            type="submit"
+    <button
             name="myData"
+            type="submit"
             value="{'action':'cancel_trade','symbol':'{{ position.symbol }}'}"
-          >
-            &nbsp;Cancel trade
-          </button>
+    >
+        &nbsp;Cancel trade
+    </button>
 
-          <button
-            type="submit"
+    <button
             name="myData"
+            type="submit"
             value="{'action':'set_sl_breakeven','symbol':'{{ position.symbol }}'}"
-          >
-            &nbsp;SL Breakeven
-          </button>
+    >
+        &nbsp;SL Breakeven
+    </button>
 
-          <button
-            type="submit"
+    <button
             name="myData"
+            type="submit"
             value="{'action':'cancel_add_orders','symbol':'{{ position.symbol }}'}"
-          >
-            &nbsp;Cancel add orders
-          </button>
+    >
+        &nbsp;Cancel add orders
+    </button>
 
-          {% if position.unrealisedPnl|int > 0 %}
-            &nbsp;🟢&nbsp;<span style="display: inline-block; width: 30px; text-align: right;">{{position.unrealisedPnl|float|round(2, 'floor')}}</span>
-          {% else %}
-            &nbsp;🔴&nbsp;<span style="display: inline-block; width: 30px; text-align: right;">{{position.unrealisedPnl|float|round(2, 'floor')}}</span>
-          {% endif %}
+    {% if position.unrealisedPnl|int > 0 %}
+    &nbsp;🟢&nbsp;<span style="display: inline-block; width: 30px; text-align: right;">{{position.unrealisedPnl|float|round(2, 'floor')}}</span>
+    {% else %}
+    &nbsp;🔴&nbsp;<span style="display: inline-block; width: 30px; text-align: right;">{{position.unrealisedPnl|float|round(2, 'floor')}}</span>
+    {% endif %}
 
-        </form>
+</form>
 
-      {% endfor %}
-      <br>
+{% endfor %}
+<br>
 
 
-       <table style="margin: 0 auto;">
-       <tr>
-    <td style="text-align: right;"><b>Total positions:</b></td>
-    <td style="text-align: left;"><span class="var">{{ positions|length}}</span></td>
-  </tr>
+<table style="margin: 0 auto;">
+    <tr>
+        <td style="text-align: right;"><b>Total positions:</b></td>
+        <td style="text-align: left;"><span class="var">{{ positions|length}}</span></td>
+    </tr>
 
-  <tr>
-    <td style="text-align: right;"><b>Unrealised PNL:</b></td>
-    <td style="text-align: left;"><span class="var">{{ unrealised_pnl }}</span></td>
-  </tr>
+    <tr>
+        <td style="text-align: right;"><b>Unrealised PNL:</b></td>
+        <td style="text-align: left;"><span class="var">{{ unrealised_pnl }}</span></td>
+    </tr>
 
-  <tr>
-    <td style="text-align: right;"><b>Realised PNL:</b></td>
-    <td style="text-align: left;"><span class="var">{{ realised_pnl }}</span></td>
-  </tr>
-        </table>
+    <tr>
+        <td style="text-align: right;"><b>Realised PNL:</b></td>
+        <td style="text-align: left;"><span class="var">{{ realised_pnl }}</span></td>
+    </tr>
+</table>
 
-    </body>
+</body>
 
-  </html>
+</html>
 
 {% endblock %}
