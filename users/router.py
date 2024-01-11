@@ -2,19 +2,20 @@ from typing import Annotated
 
 from fastapi import Depends, HTTPException, status, APIRouter
 
-from .dependencies import validate_user, create_user, create_token
+from .dependencies import validate_user, create_user
+from .dependencies import create_token as create_jwt_token
 from .schemas import User, ExchangeKeys
 from users import db_queries
 
 users = APIRouter(prefix='/api', tags=['Users'])
 
 
-@users.get("/token")
-async def get_token(user_data: User):
+@users.post("/tokens")
+async def create_token(user_data: User):
     user_username = user_data.username
     user_password = user_data.password
 
-    token, expiration_time = await create_token(user_username, user_password)
+    token, expiration_time = await create_jwt_token(user_username, user_password)
     if token is None:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, detail={'status': 'error', 'message': 'Invalid credentials'})
 
