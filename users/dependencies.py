@@ -39,7 +39,7 @@ async def validate_user(token: Annotated[str, Header()]):
 async def create_token(username: str, password: str):
     user = await db_queries.get_user_by_username(username)
 
-    if user is None or not verify_password(password, user.password):
+    if user is None or not pwd_context.verify(password, user.password):
         return None, None
 
     expiration_time = datetime.utcnow() + timedelta(access_token_expire)
@@ -47,8 +47,7 @@ async def create_token(username: str, password: str):
     return token, expiration_time
 
 
-def verify_password(plain_password, hash_password):
-    return pwd_context.verify(plain_password, hash_password)
+
 def create_jwt_token(data: dict):
     token = jwt.encode(data, key=algorithm_key, algorithm=algorithm)
     return token
