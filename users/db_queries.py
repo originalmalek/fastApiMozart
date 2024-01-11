@@ -30,13 +30,11 @@ async def update_exchange_keys(api_key, api_secret, user_id):
         keys = session.query(ExchangeKeys).filter(ExchangeKeys.id_user == user_id).one()
         keys.api_key = api_key
         keys.api_secret = api_secret
-        session.commit()
-        return True
+
     except NoResultFound:
         keys = ExchangeKeys(api_key=api_key, api_secret=api_secret, id_user=user_id)
         session.add(keys)
-        session.commit()
-        return True
-    except IntegrityError:
-        session.rollback()
-        return False
+
+    session.commit()
+    return True
+
