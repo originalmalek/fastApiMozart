@@ -4,8 +4,7 @@ import cryptocompare
 from fastapi import Depends, APIRouter
 from pybit.exceptions import FailedRequestError, InvalidRequestError
 
-from users.db_queries import get_exchange_keys
-from users.dependencies import validate_user
+from users.dependencies import validate_user, check_exchange_keys
 from users.schemas import User, ExchangeKeys
 from trades.errors import raise_conflict_error
 from schemas import Signal, Symbol, CoinsData, StopLoss
@@ -16,7 +15,7 @@ trades = APIRouter(prefix='/api',
 
 
 @trades.post('/cancel_trade')
-async def create_trade(symbol: Symbol, keys: Annotated[ExchangeKeys, Depends(get_exchange_keys)]):
+async def create_trade(symbol: Symbol, keys: Annotated[ExchangeKeys, Depends(check_exchange_keys)]):
     try:
         response = mozart_deal.cancel_trade(symbol=symbol.symbol, api_key=keys.api_key, api_secret=keys.api_secret)
     except FailedRequestError:
@@ -30,7 +29,7 @@ async def create_trade(symbol: Symbol, keys: Annotated[ExchangeKeys, Depends(get
 
 
 @trades.post('/sl_breakeven')
-async def set_sl_breakeven(symbol: Symbol, keys: Annotated[ExchangeKeys, Depends(get_exchange_keys)]):
+async def set_sl_breakeven(symbol: Symbol, keys: Annotated[ExchangeKeys, Depends(check_exchange_keys)]):
     try:
         response = mozart_deal.set_sl_breakeven(symbol=symbol.symbol, api_key=keys.api_key, api_secret=keys.api_secret)
     except FailedRequestError:
@@ -45,7 +44,7 @@ async def set_sl_breakeven(symbol: Symbol, keys: Annotated[ExchangeKeys, Depends
 
 
 @trades.post('/cancel_add_orders')
-async def set_sl_breakeven(symbol: Symbol, keys: Annotated[ExchangeKeys, Depends(get_exchange_keys)]):
+async def set_sl_breakeven(symbol: Symbol, keys: Annotated[ExchangeKeys, Depends(check_exchange_keys)]):
     try:
         response = mozart_deal.cancel_add_orders(symbol=symbol.symbol, api_key=keys.api_key, api_secret=keys.api_secret)
     except FailedRequestError:
@@ -60,7 +59,7 @@ async def set_sl_breakeven(symbol: Symbol, keys: Annotated[ExchangeKeys, Depends
 
 
 @trades.get('/position')
-async def get_positions(symbol: Symbol, keys: Annotated[ExchangeKeys, Depends(get_exchange_keys)]):
+async def get_positions(symbol: Symbol, keys: Annotated[ExchangeKeys, Depends(check_exchange_keys)]):
     try:
         response = bybit_api.get_position_info(symbol=symbol.symbol, api_key=keys.api_key, api_secret=keys.api_secret)
     except FailedRequestError:
@@ -74,7 +73,7 @@ async def get_positions(symbol: Symbol, keys: Annotated[ExchangeKeys, Depends(ge
 
 
 @trades.get('/positions')
-async def get_positions(keys: Annotated[ExchangeKeys, Depends(get_exchange_keys)]):
+async def get_positions(keys: Annotated[ExchangeKeys, Depends(check_exchange_keys)]):
     try:
         response = bybit_api.get_position_info(api_key=keys.api_key, api_secret=keys.api_secret)
     except FailedRequestError:
@@ -88,7 +87,7 @@ async def get_positions(keys: Annotated[ExchangeKeys, Depends(get_exchange_keys)
 
 
 @trades.post('/create_trade')
-async def create_trade(signal: Signal, keys: Annotated[ExchangeKeys, Depends(get_exchange_keys)]):
+async def create_trade(signal: Signal, keys: Annotated[ExchangeKeys, Depends(check_exchange_keys)]):
     try:
         response = mozart_deal.create_trade(trade=signal, api_key=keys.api_key, api_secret=keys.api_secret)
     except FailedRequestError:
@@ -111,7 +110,7 @@ async def get_price(coins_data: CoinsData, user: Annotated[User, Depends(validat
 
 
 @trades.get('/exchanges')
-async def get_exchanges(user: Annotated[User, Depends(validate_user)]):
+async def exchanges(user: Annotated[User, Depends(validate_user)]):
     response = cryptocompare.get_exchanges()
     if not response:
         raise_conflict_error(message='Incorrect data')
@@ -120,7 +119,7 @@ async def get_exchanges(user: Annotated[User, Depends(validate_user)]):
 
 
 @trades.post('/stoploss')
-def set_stop_loss(sl_data: StopLoss, keys: Annotated[ExchangeKeys, Depends(get_exchange_keys)]):
+def set_stop_loss(sl_data: StopLoss, keys: Annotated[ExchangeKeys, Depends(check_exchange_keys)]):
     symbol = sl_data.symbol
     stop_price = sl_data.stop_price
     try:
