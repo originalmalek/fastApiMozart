@@ -66,7 +66,7 @@ async def register(request: Request, username: str = Form(...), password: str = 
     token, _ = await users.dependencies.create_token(username, password)
 
     response = redirect(url='/exchange_keys', status_code=status.HTTP_302_FOUND, request=request, status='success',
-                    message='User successfully created. Please add your Bybit exchange keys')
+                        message='User successfully created. Please add your Bybit exchange keys')
 
     response.set_cookie(key='access_token', value=token)
     return response
@@ -91,9 +91,7 @@ async def login(request: Request):
     try:
         await users.dependencies.validate_user(token=access_token)
         return RedirectResponse('/panel', status_code=status.HTTP_302_FOUND)
-
     except:
-
         response = templates.TemplateResponse('login.html',
                                               {'request': request, 'status': request.session.pop('status', None),
                                                'message': request.session.pop('message', None), 'is_public_page': True})
@@ -154,8 +152,6 @@ async def show_panel(request: Request):
                         message='Wrong request to Bybit API, Please update your Bybit API keys', delete_cookie=None)
 
 
-
-
 @website.post("/exchange_keys")
 async def register(request: Request, api_key: str = Form(...), api_secret: str = Form(...)):
     access_token = request.cookies.get('access_token')
@@ -170,7 +166,6 @@ async def register(request: Request, api_key: str = Form(...), api_secret: str =
     except HTTPException:
         return redirect(url='/exchange_keys', status_code=status.HTTP_302_FOUND, request=request, status='error',
                         message='Keys are not updated')
-
 
 
 @website.get("/exchange_keys")
@@ -224,6 +219,7 @@ async def process_form_data(request: Request, inputField: str = Form(default=Non
         return redirect(url=f'/panel', status_code=status.HTTP_302_FOUND, request=request, status='error',
                         message=f'Trade is not created. Write correct data to create trade.')
 
+
 @website.post('/submit')
 async def process_form_data(request: Request):
     form_data = await request.form()
@@ -252,21 +248,20 @@ async def process_form_data(request: Request):
             response = mozart_deal.cancel_add_orders(symbol=symbol, api_key=api_key, api_secret=api_secret)
             message = f'Add orders successfully canceled {symbol}'
 
+        if response:
+            return redirect(url=f'/{page}', status_code=status.HTTP_302_FOUND, request=request, status='success',
+                            message=message)
+
     except FailedRequestError:
         return redirect(url='/exchange_keys', status_code=status.HTTP_302_FOUND, request=request, status='error',
                         message='Keys are not valid. Please update your Bybit API keys')
 
     except InvalidRequestError as err:
-         return redirect(url=f'/{page}', status_code=status.HTTP_302_FOUND, request=request, status='error',
-                 message=f'Wrong request to Bybit API {err.message}')
-
-
-    if not response:
         return redirect(url=f'/{page}', status_code=status.HTTP_302_FOUND, request=request, status='error',
-                        message='The trade is not open')
+                        message=f'Wrong request to Bybit API {err.message}')
 
-    return redirect(url=f'/{page}', status_code=status.HTTP_302_FOUND, request=request, status='success',
-                    message=message)
+    return redirect(url=f'/{page}', status_code=status.HTTP_302_FOUND, request=request, status='error',
+                    message='The trade is not open')
 
 
 @website.post('/set_stop')
@@ -312,21 +307,19 @@ async def open_trade_page(request: Request, symbol: str):
         position = get_position_info(api_key=api_key, api_secret=api_secret, symbol=symbol)['result']['list']
         ticker = get_tickers(symbol=symbol, api_key=api_key, api_secret=api_secret)
         return templates.TemplateResponse('pair.html', {'request': request, 'positions': position,
-                                                            'ticker': ticker['result']['list'][0],
-                                                            'position': position[0],
-                                                            'status': request.session.pop('status', None),
-                                                            'message': request.session.pop('message', None)})
+                                                        'ticker': ticker['result']['list'][0], 'position': position[0],
+                                                        'status': request.session.pop('status', None),
+                                                        'message': request.session.pop('message', None)})
 
     except HTTPException:
         return redirect(url='/exchange_keys', status_code=status.HTTP_302_FOUND, request=request, status='error',
-                 message='Keys are not added. Please add your Bybit API keys')
+                        message='Keys are not added. Please add your Bybit API keys')
 
-    except FailedRequestError:
+    except FailedRequestError as err:
         return redirect(url='/exchange_keys', status_code=status.HTTP_302_FOUND, request=request, status='error',
-                        message='Keys are not valid. Please update your Bybit API keys', delete_cookie=None)
+                        message=f'Keys are not valid. Please update your Bybit API keys {err.message}',
+                        delete_cookie=None)
 
-    except InvalidRequestError:
+    except InvalidRequestError as err:
         return redirect(url=f'/panel', status_code=status.HTTP_302_FOUND, request=request, status='error',
-                        message='Wrong request to Bybit API')
-
-    return response
+                        message=f'Wrong request to Bybit API {err.message}')
