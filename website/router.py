@@ -7,6 +7,7 @@ from pybit.exceptions import FailedRequestError, InvalidRequestError
 import users.dependencies
 import users.router
 import users.schemas
+from users import db_queries
 from users.db_queries import update_exchange_keys
 from utils import mozart_deal
 from utils.bybit_api import get_position_info, get_tickers, trading_stop
@@ -35,7 +36,7 @@ def redirect(url, status_code, request=None, status=None, message=None, delete_c
 async def get_exchange_keys(request: Request):
     access_token = request.cookies.get('access_token')
     user = await users.dependencies.validate_user(access_token)
-    keys = await users.dependencies.check_exchange_keys(user)
+    keys = await db_queries.get_exchange_keys(user.id)
     return keys
 
 

@@ -45,11 +45,3 @@ async def create_token(username: str, password: str):
     expiration_time = datetime.utcnow() + timedelta(access_token_expire)
     token = jwt.encode({'username': username, 'exp': expiration_time}, key=algorithm_key, algorithm=algorithm)
     return token, expiration_time
-
-
-async def check_exchange_keys(user: Annotated[User, Depends(validate_user)]):
-    keys = await db_queries.get_exchange_keys(user.id)
-
-    if keys is None:
-        raise HTTPException(status.HTTP_401_UNAUTHORIZED, detail={'status': 'error', 'message': 'Keys not found'})
-    return keys
