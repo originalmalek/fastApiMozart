@@ -211,7 +211,6 @@ async def process_form_data(request: Request, inputField: str = Form(default=Non
         return redirect(url=f'/panel', status_code=status.HTTP_302_FOUND, request=request, status='error',
                         message=f'Trade is not created. Write correct data to create trade.')
 
-
     except NameError:
         return redirect(url=f'/panel', status_code=status.HTTP_302_FOUND, request=request, status='error',
                         message=f'Trade is not created. Write correct data to create trade.')
