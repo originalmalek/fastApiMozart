@@ -20,11 +20,9 @@ async def get_user_by_username(username):
 
 
 async def get_exchange_keys(user_id):
-    try:
-        keys = session.query(ExchangeKeys).filter(ExchangeKeys.id_user == user_id).one()
-        return keys
-    except NoResultFound:
-        return None
+    keys = session.query(ExchangeKeys).filter(ExchangeKeys.id_user == user_id).one_or_none()
+    return keys
+
 
 
 async def update_exchange_keys(api_key, api_secret, user_id):
