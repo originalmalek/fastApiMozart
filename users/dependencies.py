@@ -43,14 +43,8 @@ async def create_token(username: str, password: str):
         return None, None
 
     expiration_time = datetime.utcnow() + timedelta(access_token_expire)
-    token = create_jwt_token(data={'username': username, 'exp': expiration_time})
+    token = jwt.encode({'username': username, 'exp': expiration_time}, key=algorithm_key, algorithm=algorithm)
     return token, expiration_time
-
-
-
-def create_jwt_token(data: dict):
-    token = jwt.encode(data, key=algorithm_key, algorithm=algorithm)
-    return token
 
 
 async def check_exchange_keys(user: Annotated[User, Depends(validate_user)]):
