@@ -16,7 +16,20 @@
 <body>
 
 <h1>Trade panel</h1>
+<select id="pairs">
+    {% for symbol in instruments %}
+  <option value="{{ symbol.symbol}}">{{ symbol.symbol}}</option>
+    {% endfor %}
+</select>
 
+<button onclick="goToPair()">Перейти</button>
+
+<script>
+function goToPair() {
+  let pair = document.getElementById("pairs").value;
+  window.location.href = "/" + pair;
+}
+</script>
 <form action="/form_create_trade" method="post">
     <label for="inputField">
         Create trade:
