@@ -1,3 +1,5 @@
+from typing import Optional
+
 from fastapi import Form, Request, APIRouter, status
 from fastapi.exceptions import HTTPException
 from fastapi.responses import RedirectResponse
@@ -10,7 +12,7 @@ import users.schemas
 from users import db_queries
 from users.db_queries import update_exchange_keys
 from utils import mozart_deal
-from utils.bybit_api import get_position_info, get_tickers, trading_stop
+from utils.bybit_api import get_position_info, get_tickers, trading_stop, open_order, get_instruments_info
 
 website = APIRouter(include_in_schema=False)
 templates = Jinja2Templates(directory='templates')
@@ -126,7 +128,11 @@ async def logout(request: Request):
 async def show_panel(request: Request):
     try:
         keys = await get_exchange_keys(request)
-        positions = await get_sorted_positions(keys.api_key, keys.api_secret)
+        api_key = keys.api_key
+        api_secret = keys.api_secret
+        positions = await get_sorted_positions(api_key, api_secret)
+        instruments = get_instruments_info(api_secret=api_secret, api_key=api_key, symbol=None)['result']['list']
+
         total_unrealised_pnl = 0
         total_realised_pnl = 0
 
@@ -138,6 +144,7 @@ async def show_panel(request: Request):
         return templates.TemplateResponse('panel.html', {'request': request, 'positions': positions,
                                                          'unrealised_pnl': round(total_unrealised_pnl, 2),
                                                          'realised_pnl': round(total_realised_pnl, 2),
+                                                         'instruments': instruments,
                                                          'status': request.session.pop('status', None),
                                                          'message': request.session.pop('message', None)})
     except HTTPException:
@@ -265,12 +272,12 @@ async def process_form_data(request: Request):
 
 
 @website.post('/set_stop')
-async def set_stop(request: Request, inputField: str = Form(default=None), symbol: str = Form(...)):
-    if not inputField:
+async def set_stop(request: Request, stop_price: str = Form(default=None), symbol: str = Form(...)):
+    if not set_stop:
         return redirect(url=f'/{symbol}', status_code=status.HTTP_302_FOUND, request=request, status='error',
                         message='StopLoss is not updated. Please write a number.')
     try:
-        stop_price = float(inputField)
+        stop_price = float(stop_price)
         keys = await get_exchange_keys(request)
         api_key = keys.api_key
         api_secret = keys.api_secret
@@ -322,4 +329,34 @@ async def open_trade_page(request: Request, symbol: str):
 
     except InvalidRequestError as err:
         return redirect(url=f'/panel', status_code=status.HTTP_302_FOUND, request=request, status='error',
+                        message=f'Wrong request to Bybit API {err.message}')
+
+
+@website.post("/market_position")
+async def analyze(request: Request,
+                  quantity: Optional[str] = Form(default=None),
+                  side_symbol: Optional[str] = Form(...)):
+    try:
+        keys = await get_exchange_keys(request)
+        side, symbol = side_symbol.split('_')
+
+        open_order(symbol=symbol, side=side,
+                   order_type='Market',
+                   quantity=quantity,
+                   api_key=keys.api_key,
+                   api_secret=keys.api_secret)
+
+        return redirect(url=f'/{symbol}', status_code=status.HTTP_302_FOUND, request=request, status='success',
+                        message=f'Order successfully placed {symbol}')
+
+    except HTTPException:
+        return redirect(url='/exchange_keys', status_code=status.HTTP_302_FOUND, request=request, status='error',
+                        message='Keys are not added. Please add your Bybit API keys')
+
+    except FailedRequestError as err:
+        return redirect(url='/exchange_keys', status_code=status.HTTP_302_FOUND, request=request, status='error',
+                        message=f'Keys are not valid. Please update your Bybit API keys\n {err.message}')
+
+    except InvalidRequestError as err:
+        return redirect(url=f'/{symbol}', status_code=status.HTTP_302_FOUND, request=request, status='error',
                         message=f'Wrong request to Bybit API {err.message}')

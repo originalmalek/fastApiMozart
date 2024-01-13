@@ -22,20 +22,7 @@
 <body>
 
 
-<h1>Symbol panel</h1>
-
-<form action="/set_stop" method="post">
-    <label for="inputField">
-        Set Stop Loss:
-    </label>
-
-    <input id="inputField" name="inputField" type="text">
-    <input id="symbol" name="symbol" type="hidden" value="{{ position.symbol }}">
-    <input type="submit" value="Send data">
-</form>
-
-<br>
-
+<h1>Symbol panel {{ position.symbol }}</h1>
 
 <form action="/submit" method="post">
 
@@ -82,7 +69,46 @@
     {% endif %}
 
 </form>
+
+<form action="/set_stop" method="post">
+    <label for="inputField">
+        Stop Loss
+    </label>
+
+    <input id="stop_price" name="stop_price" type="text">
+    <input id="symbol" name="symbol" type="hidden" value="{{ position.symbol }}">
+    <input type="submit" value="Send data">
+</form>
+
+<form method="post" action="/market_position">
+  <button type="submit" name="side_symbol" value="Buy_{{ position.symbol }}">Buy</button>
+
+  <input type="text" name="quantity" pattern="^[\d]+(\.[\d]+)?$" title="Please input number." required type="quantity">
+
+  <button type="submit" name="side_symbol" value="Sell_{{ position.symbol }}">Sell</button>
+</form>
+
+<tr>
+<td style="text-align: right;"><b>Stop Loss:</b></td>
+        <td style="text-align: left;"><span class="var">{{position.stopLoss}}</span></td>
+</tr>
 <br>
+<tr>
+        <td style="text-align: right;"><b>Side:</b></td>
+        <td style="text-align: left;"><span class="var">{{position.side}}</span></td>
+    </tr>
+<br>
+    <tr>
+        <td style="text-align: right;"><b>Unrealized P/L:</b></td>
+        <td style="text-align: left;"><span class="var">{{position.unrealisedPnl|float|round(2)}}</span></td>
+    </tr>
+<br>
+    <tr>
+        <td style="text-align: right;"><b>Realized P/L:</b></td>
+        <td style="text-align: left;"><span class="var">{{position.cumRealisedPnl|float|round(2)}}</span></td>
+    </tr>
+<br>
+
 
 <!-- TradingView Widget BEGIN -->
 <div class="tradingview-widget-container">
