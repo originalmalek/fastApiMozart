@@ -1,19 +1,25 @@
 {% extends "base.html" %}
 
 {% block content %}
-<form action="/exchange_keys" method="post">
-    <div class="container">
 
-        <p>Please fill in this form to update exchange keys.</p>
-        <hr>
-        <label for="api_key"><b>API Key</b></label>
-        <input name="api_key" placeholder="Enter API Key" required type="api_key">
-        <label for="api_secret"><b>API Secret</b></label>
-        <input name="api_secret" placeholder="Enter API Secret" required type="api_secret">
-        <hr>
-        <button type="submit">Update exchange keys</button>
+<div class="text-center">
+    <p class="h2">Update Exchange Keys</p>
+    <p class="h6">Please fill in this form to update exchange keys.</p>
+</div>
+
+<form action="/exchange_keys" method="post" style="width: 300px; max-width: 90%" class="mx-auto">
+    <div class="form-floating mb-3">
+        <input id="floatingInputApiKey" name="api_key" type="text" class="form-control" required>
+        <label for="floatingInputApiKey">Api Key</label>
+    </div>
+    <div class="form-floating mb-3">
+        <input id="floatingInputApiSecret" name="api_secret" type="password" class="form-control" required>
+        <label for="floatingInputApiSecret">Api Secret</label>
+    </div>
+    <div class="text-center">
+        <button type="submit" class="btn btn-primary">Update keys</button>
     </div>
 </form>
-<br>
+
 
 {% endblock %}
