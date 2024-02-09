@@ -31,17 +31,18 @@
 </div>
 
 {% for position in positions %}
-
 <form action="/submit" class="col-lg-6 offset-lg-3 " method="post">
     <p class="gap-1">
-    <div class="d-grid gap-2 d-md-block mx-auto" style="max-width: 600px; max-width: 90%">
-        <a class="btn" href="{{ position.symbol }}" style="color: darkblue" type="button">{{ position.symbol }}
-            {% if position.side == 'Buy' %} 📈 {% else %} 📉 {% endif %}
+    <div class="d-grid gap-2 d-md-block mx-auto text-center" style="max-width: 600px; max-width: 90%">
+        <a class="btn" style="color: darkblue" type="button" href="{{ position.symbol }}">{{ position.symbol }}
+            {% if position.side == 'Buy' %} 📈 {% endif %}
+            {% if position.side == 'Sell' %} 📉 {% endif %}
             {% if position.unrealisedPnl|float|round(2, 'floor') > 0 %} 🟢 {{position.unrealisedPnl|float|round(2, 'floor')}}
             {% elif position.unrealisedPnl|float|round(2, 'floor') < 0 %} 🔴 {{position.unrealisedPnl|float|round(2, 'floor')}}
             {% else %} 🟡 {% endif %}
-
         </a>
+
+        {% if (position.side == 'Buy') or (position.side == 'Sell') %}
         <button aria-pressed="true" class="btn active" name="myData" type="submit"
                 value="{'action':'cancel_trade','symbol':'{{ position.symbol }}', 'page':'panel'}">Cancel trade
         </button>
@@ -49,14 +50,15 @@
         <button aria-pressed="true" class="btn active" name="myData" type="submit"
                 value="{'action':'set_sl_breakeven','symbol':'{{ position.symbol }}','page':'panel'}">SL Breakeven
         </button>
+
         <button aria-pressed="true" class="btn active" name="myData" type="submit"
                 value="{'action':'cancel_add_orders','symbol':'{{ position.symbol }}','page':'panel'}">Cancel add orders
         </button>
+        {% endif %}
     </div>
     </p>
 
 </form>
-
 {% endfor %}
 
 

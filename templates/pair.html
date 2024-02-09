@@ -91,9 +91,127 @@
   </div>
 
 
-  <div class="tab-pane" id="profile" role="tabpanel" aria-labelledby="profile-tab">123</div>
+  <div class="tab-pane" id="profile" role="tabpanel" aria-labelledby="profile-tab">
+      <div class="mx-auto" style="max-width: 90%; max-width: 300px;">
+    <table class="table table-borderless" style="margin-left: auto; margin-right: auto">
+        <thead>
+        <tr>
+            <th class="h6 text-center" style="text-align: center">Position summary</th>
+        </tr>
+    </thead>
+        <tbody>
+        <tr>
+            <td><b>Symbol</b></td>
+            <td>{{position.symbol}}</td>
+        </tr>
+
+        <tr>
+            <td><b>Side</b></td>
+            <td>{{position.side}}</td>
+        </tr>
+
+        <tr>
+            <td><b>Size</b></td>
+            <td>{{position.size}}</td>
+        </tr>
+
+        <tr>
+            <td><b>Average Price</b></td>
+            <td>{{position.avgPrice}}</td>
+        </tr>
+
+        <tr>
+            <td><b>Total positions</b></td>
+            <td>{{ positions|length}}</td>
+        </tr>
+
+        <tr>
+            <td><b>Position Value</b></td>
+            <td>{{position.positionValue}}</td>
+        </tr>
+
+        <tr>
+            <td><b>Leverage</b></td>
+            <td>{{ position.leverage }}</td>
+        </tr>
+
+        <tr>
+            <td><b>Margin Balance</b></td>
+            <td>{{ position.positionBalance }}</td>
+        </tr>
+
+        <tr>
+            <td><b>Mark Price</b></td>
+            <td>{{position.markPrice}}</td>
+        </tr>
+        <tr>
+            <td><b>Liquidation Price</b></td>
+            <td>{{position.liqPrice}}</td>
+        </tr>
+        <tr>
+            <td><b>Stop Loss</b></td>
+            <td>{{position.stopLoss}}</td>
+        </tr>
+        <tr>
+            <td><b>Unrealized P/L</b></td>
+            <td>{{position.unrealisedPnl}}</td>
+        </tr>
+        <tr>
+            <td><b>Realized P/L</b></td>
+            <td>{{position.cumRealisedPnl}}</td>
+        </tr>
+
+        </tbody>
+    </table>
+</div>
+
+
+<div class="mx-auto" style="max-width: 90%; max-width: 300px;">
+    <table class="table table-borderless" style="margin-left: auto; margin-right: auto">
+        <thead>
+        <tr>
+            <th class="h6 text-center" style="text-align: center">Ticker summary</th>
+        </tr>
+    </thead>
+        <tbody>
+        <tr>
+            <td><b>Mark Price</b></td>
+            <td>{{ticker.markPrice}}</td>
+        </tr>
+
+        <tr>
+            <td><b>24hr Prev Price</b></td>
+            <td>{{ticker.prevPrice24h}}</td>
+        </tr>
+
+        <tr>
+            <td><b>24hr Price Change</b></td>
+            <td>{{ticker.highPrice24h}}</td>
+        </tr>
+
+        <tr>
+            <td><b>1hr Prev Price</b></td>
+            <td>{{ticker.prevPrice1h}}</td>
+        </tr>
+
+        <tr>
+            <td><b>24hr Volume</b></td>
+            <td>{{ticker.volume24h}}</td>
+        </tr>
+
+        <tr>
+            <td><b>Funding Rate</b></td>
+            <td{{ticker.fundingRate}}</td>
+        </tr>
+
+        </tbody>
+    </table>
+</div>
+  </div>
 
 </div>
+
+
 
 <script>
   var firstTabEl = document.querySelector('#myTab li:last-child a')
