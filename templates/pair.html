@@ -1,273 +1,107 @@
 {% extends "base.html" %}
 
 {% block content %}
-<style>
-    .var {
-        font-weight: bold;
-        color: darkblue;
-    }
+<p class="h2 text-center">Symbol panel {{ position.symbol }}</p>
 
-    .tradingview-widget-container {
-        margin: 0 auto;
-        display: block;
-    }
-</style>
-<html lang="en">
+<!-- Tab bar BEGIN -->
+<ul class="nav nav-pills mb-3" id="myTab" role="tablist" style="justify-content: center">
+  <li class="nav-item" role="presentation">
+    <button class="nav-link active" id="home-tab" data-bs-toggle="tab" data-bs-target="#home" type="button" role="tab" aria-controls="home" aria-selected="true" style="padding: 1px 10px;">Trade</button>
+  </li>
+  <li class="nav-item" role="presentation">
+    <button class="nav-link" id="profile-tab" data-bs-toggle="tab" data-bs-target="#profile" type="button" role="tab" aria-controls="profile" aria-selected="false" style="padding: 1px 10px;">Summary</button>
+  </li>
+</ul>
+<div class="tab-content">
+  <div class="tab-pane active" id="home" role="tabpanel" aria-labelledby="home-tab">
+      <br>
+      <form action="/set_stop" method="post" style="max-width: 90%; width: 500px; min-width: 270px" class="mx-auto">
+    <div class="input-group mb-3">
+        <input aria-describedby="button-addon2" aria-label="Open Trade" class="form-control"
+               placeholder="Set stop loss" name="stop_price" pattern="^[\d]+(\.[\d]+)?$" title="Please input number."
+               type="text">
 
-<head>
-    <meta charset="UTF-8">
-    <title>{{ position.symbol }}</title>
-</head>
-
-<body>
-
-
-<h1>Symbol panel {{ position.symbol }}</h1>
-
-<form action="/submit" method="post">
-
-    <strong>
-            <span style="display: inline-block; width: 100px; text-align: right;">
-              {{ position.symbol }}
-            </span>
-    </strong>
-
-    {% if position.side == 'Buy' %}
-    📈
-    {% else %}
-    📉
-    {% endif %}
-
-    <button
-            name="myData"
-            type="submit"
-            value="{'action':'cancel_trade','symbol':'{{ position.symbol }}'}"
-    >
-        &nbsp;Cancel trade
-    </button>
-
-    <button
-            name="myData"
-            type="submit"
-            value="{'action':'set_sl_breakeven','symbol':'{{ position.symbol }}'}"
-    >
-        &nbsp;SL Breakeven
-    </button>
-
-    <button
-            name="myData"
-            type="submit"
-            value="{'action':'cancel_add_orders','symbol':'{{ position.symbol }}'}"
-    >
-        &nbsp;Cancel add orders
-    </button>
-
-    {% if position.unrealisedPnl|int > 0 %}
-    &nbsp;🟢&nbsp;<span style="display: inline-block; width: 30px; text-align: right;">{{position.unrealisedPnl|float|round(2, 'floor')}}</span>
-    {% else %}
-    &nbsp;🔴&nbsp;<span style="display: inline-block; width: 30px; text-align: right;">{{position.unrealisedPnl|float|round(2, 'floor')}}</span>
-    {% endif %}
-
+    <input name="symbol" type="hidden" value="{{ position.symbol }}">
+        <input class="btn btn-outline-secondary" type="submit" value="Set StopLoss">
+    </div>
 </form>
-
-<form action="/set_stop" method="post">
-    <label for="inputField">
-        Stop Loss
-    </label>
-
-    <input id="stop_price" name="stop_price" type="text">
-    <input id="symbol" name="symbol" type="hidden" value="{{ position.symbol }}">
-    <input type="submit" value="Send data">
-</form>
-
-<form method="post" action="/market_position">
-  <button type="submit" name="side_symbol" value="Buy_{{ position.symbol }}">Buy</button>
-
-  <input type="text" name="quantity" pattern="^[\d]+(\.[\d]+)?$" title="Please input number." required type="quantity">
-
-  <button type="submit" name="side_symbol" value="Sell_{{ position.symbol }}">Sell</button>
-</form>
-
-<tr>
-<td style="text-align: right;"><b>Stop Loss:</b></td>
-        <td style="text-align: left;"><span class="var">{{position.stopLoss}}</span></td>
-</tr>
-<br>
-<tr>
-        <td style="text-align: right;"><b>Side:</b></td>
-        <td style="text-align: left;"><span class="var">{{position.side}}</span></td>
-    </tr>
-<br>
-    <tr>
-        <td style="text-align: right;"><b>Unrealized P/L:</b></td>
-        <td style="text-align: left;"><span class="var">{{position.unrealisedPnl|float|round(2)}}</span></td>
-    </tr>
-<br>
-    <tr>
-        <td style="text-align: right;"><b>Realized P/L:</b></td>
-        <td style="text-align: left;"><span class="var">{{position.cumRealisedPnl|float|round(2)}}</span></td>
-    </tr>
-<br>
-
-
+<div class="mx-auto" style="max-width: 500px;max-width: 90%; width: 500px; min-width: 270px; height: 270px">
 <!-- TradingView Widget BEGIN -->
-<div class="tradingview-widget-container">
-    <div class="tradingview-widget-container__widget"></div>
-    <script async src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js"
-            type="text/javascript">
-        {
-            "width"
-        :
-            "500",
-                "height"
-        :
-            "500",
-                "symbol"
-        :
-            "BYBIT:{{ position.symbol }}.P",
-                "interval"
-        :
-            "D",
-                "timezone"
-        :
-            "Etc/UTC",
-                "theme"
-        :
-            "light",
-                "style"
-        :
-            "1",
-                "locale"
-        :
-            "en",
-                "enable_publishing"
-        :
-            false,
-                "allow_symbol_change"
-        :
-            true,
-                "support_host"
-        :
-            "https://www.tradingview.com"
-        }
-    </script>
+<div class="tradingview-widget-container mx-auto">
+  <div class="tradingview-widget-container__widget"></div>
+  <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
+  {
+  "autosize": true,
+  "symbol": "BYBIT:{{ position.symbol }}.P",
+  "interval": "D",
+  "timezone": "Etc/UTC",
+  "theme": "light",
+  "style": "1",
+  "locale": "en",
+  "enable_publishing": false,
+  "hide_legend": true,
+  "save_image": false,
+  "support_host": "https://www.tradingview.com"
+}
+  </script>
+</div>
 </div>
 <!-- TradingView Widget END -->
+<br>
+<div style="max-width: 90%; max-width: 300px;" class="mx-auto">
+<form method="post" action="/market_position">
+  <input class="form-control "type="text" name="quantity" pattern="^[\d]+(\.[\d]+)?$" title="Please input number." required type="quantity">
+<br>
+    <div class="btn-group text-center" role="group" style="max-width: 90%; max-width: 300px;">
+
+<button class="btn btn-success btn-sm" type="submit" name="side_symbol" value="Buy_{{ position.symbol }}" style="min-width: 150px;">Long</button>
+  <button class="btn btn-danger btn-sm"type="submit" name="side_symbol" value="Sell_{{ position.symbol }}" style="min-width: 150px;">Short</button>
+        </div>
+</form>
+</div>
+
+<form action="/submit" class="col-lg-6 offset-lg-3 " method="post">
+    <p class="gap-1">
+    <div class="d-grid gap-2 d-md-block mx-auto text-center" style="max-width: 600px; max-width: 90%">
+        <button class="btn" style="color: darkblue" type="button">{{ position.symbol }}
+            {% if position.side == 'Buy' %} 📈 {% endif %}
+            {% if position.side == 'Sell' %} 📉 {% endif %}
+            {% if position.unrealisedPnl|float|round(2, 'floor') > 0 %} 🟢 {{position.unrealisedPnl|float|round(2, 'floor')}}
+            {% elif position.unrealisedPnl|float|round(2, 'floor') < 0 %} 🔴 {{position.unrealisedPnl|float|round(2, 'floor')}}
+            {% else %} 🟡 {% endif %}
+        </button>
+
+        {% if (position.side == 'Buy') or (position.side == 'Sell') %}
+        <button aria-pressed="true" class="btn active" name="myData" type="submit"
+                value="{'action':'cancel_trade','symbol':'{{ position.symbol }}', 'page':'panel'}">Cancel trade
+        </button>
+
+        <button aria-pressed="true" class="btn active" name="myData" type="submit"
+                value="{'action':'set_sl_breakeven','symbol':'{{ position.symbol }}','page':'panel'}">SL Breakeven
+        </button>
+
+        <button aria-pressed="true" class="btn active" name="myData" type="submit"
+                value="{'action':'cancel_add_orders','symbol':'{{ position.symbol }}','page':'panel'}">Cancel add orders
+        </button>
+        {% endif %}
+    </div>
+    </p>
+
+</form>
+  </div>
 
 
-<h2>Position summary</h2>
+  <div class="tab-pane" id="profile" role="tabpanel" aria-labelledby="profile-tab">123</div>
 
-<table style="margin: 0 auto;">
-    <tr>
-        <td style="text-align: right;"><b>Symbol:</b></td>
-        <td style="text-align: left;"><span class="var">{{position.symbol}}</span></td>
-    </tr>
+</div>
 
-    <tr>
-        <td style="text-align: right;"><b>Side:</b></td>
-        <td style="text-align: left;"><span class="var">{{position.side}}</span></td>
-    </tr>
+<script>
+  var firstTabEl = document.querySelector('#myTab li:last-child a')
+  var firstTab = new bootstrap.Tab(firstTabEl)
 
-    <tr>
-        <td style="text-align: right;"><b>Size:</b></td>
-        <td style="text-align: left;"><span class="var">{{position.size}}</span></td>
-    </tr>
+  firstTab.show()
+</script>
+<!-- Tab bar End -->
 
-    <tr>
-        <td style="text-align: right;"><b>Average Price:</b></td>
-        <td style="text-align: left;"><span class="var">{{position.avgPrice}}</span></td>
-    </tr>
-
-    <tr>
-        <td style="text-align: right;"><b>Position Value:</b></td>
-        <td style="text-align: left;"><span class="var">{{position.positionValue}}</span></td>
-    </tr>
-
-    <tr>
-        <td style="text-align: right;"><b>Leverage:</b></td>
-        <td style="text-align: left;"><span class="var">{{position.leverage}}</span></td>
-    </tr>
-
-    <tr>
-        <td style="text-align: right;"><b>Margin Balance:</b></td>
-        <td style="text-align: left;"><span class="var">{{position.positionBalance}}</span></td>
-    </tr>
-
-    <tr>
-        <td style="text-align: right;"><b>Mark Price:</b></td>
-        <td style="text-align: left;"><span class="var">{{position.markPrice}}</span></td>
-    </tr>
-
-    <tr>
-        <td style="text-align: right;"><b>Liquidation Price:</b></td>
-        <td style="text-align: left;"><span class="var">{{position.liqPrice}}</span></td>
-    </tr>
-
-    <tr>
-        <td style="text-align: right;"><b>Stop Loss:</b></td>
-        <td style="text-align: left;"><span class="var">{{position.stopLoss}}</span></td>
-    </tr>
-
-    <tr>
-        <td style="text-align: right;"><b>Unrealized P/L:</b></td>
-        <td style="text-align: left;"><span class="var">{{position.unrealisedPnl}}</span></td>
-    </tr>
-
-    <tr>
-        <td style="text-align: right;"><b>Realized P/L:</b></td>
-        <td style="text-align: left;"><span class="var">{{position.cumRealisedPnl}}</span></td>
-    </tr>
-
-</table>
-
-
-<h2>Ticker summary</h2>
-<table style="margin: 0 auto;">
-    <tr>
-        <td style="text-align: right;"><b>Mark Price:</b></td>
-        <td style="text-align: left;"><span class="var">{{ticker.markPrice}}</span></td>
-    </tr>
-
-    <tr>
-        <td style="text-align: right;"><b>24hr Prev Price:</b></td>
-        <td style="text-align: left;"><span class="var">{{ticker.prevPrice24h}}</span></td>
-    </tr>
-
-    <tr>
-        <td style="text-align: right;"><b>24hr Price Change:</b></td>
-        <td style="text-align: left;"><span class="var">{{ticker.price24hPcnt}}</span></td>
-    </tr>
-
-    <tr>
-        <td style="text-align: right;"><b>24hr High Price:</b></td>
-        <td style="text-align: left;"><span class="var">{{ticker.highPrice24h}}</span></td>
-    </tr>
-
-    <tr>
-        <td style="text-align: right;"><b>24hr Low Price:</b></td>
-        <td style="text-align: left;"><span class="var">{{ticker.lowPrice24h}}</span></td>
-    </tr>
-
-    <tr>
-        <td style="text-align: right;"><b>1hr Prev Price:</b></td>
-        <td style="text-align: left;"><span class="var">{{ticker.prevPrice1h}}</span></td>
-    </tr>
-
-    <tr>
-        <td style="text-align: right;"><b>24hr Volume:</b></td>
-        <td style="text-align: left;"><span class="var">{{ticker.volume24h}}</span></td>
-    </tr>
-
-    <tr>
-        <td style="text-align: right;"><b>Funding Rate:</b></td>
-        <td style="text-align: left;"><span class="var">{{ticker.fundingRate}}</span></td>
-    </tr>
-
-</table>
-<!-- TradingView Widget BEGIN -->
-
-</body>
-
-</html>
-
+<br><br>
 {% endblock %}

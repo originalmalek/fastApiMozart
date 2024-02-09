@@ -1,19 +1,28 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1>Login</h1>
 
-<p>Please fill in this form to login into account.</p>
-<hr>
-<form action="/login" method="post">
-    <div class="container">
-        <label for="username"><b>Username</b></label>
-        <input name="username" placeholder="Enter Username" required type="username">
-        <label for="password"><b>Password</b></label>
-        <input name="password" placeholder="Enter Password" required type="password">
-        <hr>
-        <button type="submit">Login</button>
+
+<div class="text-center">
+    <p class="h2">Login</p>
+    <p class="h6">Please fill in this form to login into account.</p>
+</div>
+
+<form action="/login" class="mx-auto" method="post" style="width: 300px; max-width: 90%">
+    <div class="form-floating mb-3">
+        <input class="form-control" id="floatingInputUsername" name="username" required type="text">
+        <label for="floatingInputUsername">Username</label>
+    </div>
+    <div class="form-floating mb-3">
+        <input class="form-control" id="floatingInputPassword" name="password" required type="password">
+        <label for="floatingInputPassword">Password</label>
+    </div>
+    <div class="text-center">
+        <button class="btn btn-primary" type="submit">Login</button>
     </div>
 </form>
-
+<br>
+<div class="text-center">
+<a class="btn text-center" href="/" style="color: darkblue" type="button">Register</a>
+</div>
 {% endblock %}

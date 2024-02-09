@@ -1,117 +1,97 @@
 {% extends "base.html" %}
 
+
 {% block content %}
-<style>
-    .var {
-        font-weight: bold;
-        color: darkblue;
-    }</style>
-<html lang="en">
 
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
+<p class="h2 text-center">Trade Panel</p>
 
-<body>
 
-<h1>Trade panel</h1>
-<select id="pairs">
-    {% for symbol in instruments %}
-  <option value="{{ symbol.symbol}}">{{ symbol.symbol}}</option>
-    {% endfor %}
-</select>
+<div class="mx-auto" style="max-width: 90%; width: 500px; min-width: 270px">
+    <div class="input-group">
+        <select class="form-select" id="pairs">
+            <option selected="">BTCUSDT</option>
+            {% for symbol in instruments %}
+            <option value="{{ symbol.symbol}}">{{ symbol.symbol}}</option>
+            {% endfor %}
+        </select>
+        <button class="btn btn-outline-secondary" onclick="goToPair()" type="button">Go to Symbol</button>
+    </div>
 
-<button onclick="goToPair()">Перейти</button>
+    <br>
 
-<script>
-function goToPair() {
-  let pair = document.getElementById("pairs").value;
-  window.location.href = "/" + pair;
-}
-</script>
-<form action="/form_create_trade" method="post">
-    <label for="inputField">
-        Create trade:
-    </label>
+    <form action="/form_create_trade" method="post">
+        <div class="input-group mb-3">
+            <input aria-describedby="button-addon2" aria-label="Open Trade" class="form-control" name="inputField" placeholder="Trade Data"
+                   type="text">
+            <input class="btn btn-outline-secondary" type="submit" value="Open Trade">
 
-    <input id="inputField" name="inputField" type="text">
-    <input type="submit" value="Send data">
-</form>
 
-<br>
+        </div>
+    </form>
+</div>
 
 {% for position in positions %}
 
-<form action="/submit" method="post">
+<form action="/submit" class="col-lg-6 offset-lg-3 " method="post">
+    <p class="gap-1">
+    <div class="d-grid gap-2 d-md-block mx-auto" style="max-width: 600px; max-width: 90%">
+        <a class="btn" href="{{ position.symbol }}" style="color: darkblue" type="button">{{ position.symbol }}
+            {% if position.side == 'Buy' %} 📈 {% else %} 📉 {% endif %}
+            {% if position.unrealisedPnl|float|round(2, 'floor') > 0 %} 🟢 {{position.unrealisedPnl|float|round(2, 'floor')}}
+            {% elif position.unrealisedPnl|float|round(2, 'floor') < 0 %} 🔴 {{position.unrealisedPnl|float|round(2, 'floor')}}
+            {% else %} 🟡 {% endif %}
 
-    <strong>
-            <span style="display: inline-block; width: 100px; text-align: right;">
-              <a href="{{ position.symbol }}">{{ position.symbol }}</a>
-            </span>
-    </strong>
+        </a>
+        <button aria-pressed="true" class="btn active" name="myData" type="submit"
+                value="{'action':'cancel_trade','symbol':'{{ position.symbol }}', 'page':'panel'}">Cancel trade
+        </button>
 
-    {% if position.side == 'Buy' %}
-    📈
-    {% else %}
-    📉
-    {% endif %}
-
-    <button
-            name="myData"
-            type="submit"
-            value="{'action':'cancel_trade','symbol':'{{ position.symbol }}', 'page':'panel'}"
-    >
-        &nbsp;Cancel trade
-    </button>
-
-    <button
-            name="myData"
-            type="submit"
-            value="{'action':'set_sl_breakeven','symbol':'{{ position.symbol }}','page':'panel'}"
-    >
-        &nbsp;SL Breakeven
-    </button>
-
-    <button
-            name="myData"
-            type="submit"
-            value="{'action':'cancel_add_orders','symbol':'{{ position.symbol }}','page':'panel'}"
-    >
-        &nbsp;Cancel add orders
-    </button>
-
-    {% if position.unrealisedPnl|int > 0 %}
-    &nbsp;🟢&nbsp;<span style="display: inline-block; width: 30px; text-align: right;">{{position.unrealisedPnl|float|round(2, 'floor')}}</span>
-    {% else %}
-    &nbsp;🔴&nbsp;<span style="display: inline-block; width: 30px; text-align: right;">{{position.unrealisedPnl|float|round(2, 'floor')}}</span>
-    {% endif %}
+        <button aria-pressed="true" class="btn active" name="myData" type="submit"
+                value="{'action':'set_sl_breakeven','symbol':'{{ position.symbol }}','page':'panel'}">SL Breakeven
+        </button>
+        <button aria-pressed="true" class="btn active" name="myData" type="submit"
+                value="{'action':'cancel_add_orders','symbol':'{{ position.symbol }}','page':'panel'}">Cancel add orders
+        </button>
+    </div>
+    </p>
 
 </form>
 
 {% endfor %}
-<br>
 
 
-<table style="margin: 0 auto;">
-    <tr>
-        <td style="text-align: right;"><b>Total positions:</b></td>
-        <td style="text-align: left;"><span class="var">{{ positions|length}}</span></td>
-    </tr>
+<script>
+    function goToPair() {
+        let pair = document.getElementById("pairs").value;
+        window.location.href = "/" + pair;
+    }
+</script>
 
-    <tr>
-        <td style="text-align: right;"><b>Unrealised PNL:</b></td>
-        <td style="text-align: left;"><span class="var">{{ unrealised_pnl }}</span></td>
-    </tr>
+<div class="mx-auto" style="max-width: 90%; max-width: 300px;">
+    <table class="table table-borderless">
+        <tr>
+            <td><b>Total positions</b></td>
+            <td>{{ positions|length}}</td>
+        </tr>
+        {% if unrealised_pnl == 0 %}
+        <tr>
+            {% endif %}
 
-    <tr>
-        <td style="text-align: right;"><b>Realised PNL:</b></td>
-        <td style="text-align: left;"><span class="var">{{ realised_pnl }}</span></td>
-    </tr>
-</table>
+            {% if unrealised_pnl > 0 %}
+        <tr class="table-success">
+            {% endif %}
 
-</body>
+            {% if unrealised_pnl < 0 %}
+        <tr class="table-danger">
+            {% endif %}
+            <td>Unrealised PNL</td>
+            <td>{{ unrealised_pnl }}</td>
 
-</html>
-
+        </tr>
+    </table>
+</div>
+<br><br>
 {% endblock %}
+
+
+
