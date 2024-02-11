@@ -338,13 +338,16 @@ async def analyze(request: Request,
                   side_symbol: Optional[str] = Form(...)):
     try:
         keys = await get_exchange_keys(request)
+        api_key=keys.api_key
+        api_secret=keys.api_secret
         side, symbol = side_symbol.split('_')
+        mozart_deal.set_leverage(symbol, api_key=api_key, api_secret=api_secret)
 
         open_order(symbol=symbol, side=side,
                    order_type='Market',
                    quantity=quantity,
-                   api_key=keys.api_key,
-                   api_secret=keys.api_secret)
+                   api_key=api_key,
+                   api_secret=api_secret)
 
         return redirect(url=f'/{symbol}', status_code=status.HTTP_302_FOUND, request=request, status='success',
                         message=f'Order successfully placed {symbol}')
