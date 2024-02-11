@@ -1,15 +1,13 @@
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
+from sqlalchemy.orm import sessionmaker, DeclarativeBase
+from environs import Env
 
-from users.models import Base as UserBase
+env = Env()
+env.read_env()
 
+async_engine = create_async_engine(env('DATABASE_URL'))
 
-engine = create_engine('sqlite:///mydatabase.db', echo=True)
-session = sessionmaker(bind=engine)()
+async_session = sessionmaker(async_engine, class_=AsyncSession, expire_on_commit=False)
 
-
-def create_db():
-    UserBase.metadata.create_all(engine)
-
-if __name__ == '__main__':
-    create_db()
+class Base(DeclarativeBase):
+    pass

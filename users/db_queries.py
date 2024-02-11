@@ -1,40 +1,41 @@
-from sqlalchemy.exc import IntegrityError, NoResultFound
-
-from database import session
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.future import select
+from sqlalchemy.exc import NoResultFound, IntegrityError
 from .models import User, ExchangeKeys
-
+from database import async_session
 
 async def create_user(password, username):
     try:
-        new_user = User(password=password, username=username)
-        session.add(new_user)
-        session.commit()
-        return True
+        async with async_session.begin() as session:
+            new_user = User(password=password, username=username)
+            session.add(new_user)
+            await session.commit()
+            return True
     except IntegrityError:
-        session.rollback()
+        await session.rollback()
         return False
 
 async def get_user_by_username(username):
-    user = session.query(User).filter(User.username == username).first()
-    return user
-
+    async with async_session.begin() as session:
+        result = await session.execute(select(User).filter_by(username=username))
+        user = result.scalar_one_or_none()
+        return user
 
 async def get_exchange_keys(user_id):
-    keys = session.query(ExchangeKeys).filter(ExchangeKeys.id_user == user_id).one_or_none()
-    return keys
-
-
+    async with async_session.begin() as session:
+        result = await session.execute(select(ExchangeKeys).filter_by(user_id=user_id))
+        keys = result.scalar_one_or_none()
+        return keys
 
 async def update_exchange_keys(api_key, api_secret, user_id):
-    try:
-        keys = session.query(ExchangeKeys).filter(ExchangeKeys.id_user == user_id).one()
-        keys.api_key = api_key
-        keys.api_secret = api_secret
-
-    except NoResultFound:
-        keys = ExchangeKeys(api_key=api_key, api_secret=api_secret, id_user=user_id)
-        session.add(keys)
-
-    session.commit()
-    return True
-
+    async with async_session.begin() as session:
+        try:
+            result = await session.execute(select(ExchangeKeys).filter_by(user_id=user_id))
+            keys = result.scalar_one()
+            keys.api_key = api_key
+            keys.api_secret = api_secret
+        except NoResultFound:
+            keys = ExchangeKeys(api_key=api_key, api_secret=api_secret, user_id=user_id)
+            session.add(keys)
+        await session.commit()
+        return True
