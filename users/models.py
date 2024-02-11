@@ -16,6 +16,6 @@ class User(Base):
 
 class ExchangeKeys(Base):
     __tablename__ = 'exchange_key'
-    id_user = Column(Integer, ForeignKey('users.id', ondelete='CASCADE'), primary_key=True)
+    user_id = Column(Integer, ForeignKey('users.id', ondelete='CASCADE'), primary_key=True)
     api_key = Column('api_key',String(200))
     api_secret = Column('api_secret', String(200))
