@@ -15,7 +15,7 @@
 <div class="tab-content">
   <div class="tab-pane active" id="home" role="tabpanel" aria-labelledby="home-tab">
       <br>
-      <form action="/set_stop" method="post" style="max-width: 90%; width: 500px; min-width: 270px" class="mx-auto">
+      <form action="/set_stop" method="post" style="width: 90%; max-width: 500px; min-width: 270px" class="mx-auto">
     <div class="input-group mb-3">
         <input aria-describedby="button-addon2" aria-label="Open Trade" class="form-control"
                placeholder="Set stop loss" name="stop_price" pattern="^[\d]+(\.[\d]+)?$" title="Please input number."
@@ -25,7 +25,7 @@
         <input class="btn btn-outline-secondary" type="submit" value="Set StopLoss">
     </div>
 </form>
-<div class="mx-auto" style="max-width: 500px;max-width: 90%; width: 500px; min-width: 270px; height: 270px">
+<div class="mx-auto" style="max-width: 500px; width: 90%; min-width: 270px; height: 270px">
 <!-- TradingView Widget BEGIN -->
 <div class="tradingview-widget-container mx-auto">
   <div class="tradingview-widget-container__widget"></div>
@@ -48,21 +48,21 @@
 </div>
 <!-- TradingView Widget END -->
 <br>
-<div style="max-width: 90%; max-width: 300px;" class="mx-auto">
+<div style="width: 90%; max-width: 300px;" class="mx-auto">
 <form method="post" action="/market_position">
-  <input class="form-control "type="text" name="quantity" pattern="^[\d]+(\.[\d]+)?$" title="Please input number." required type="quantity">
+  <input class="form-control" type="text" name="quantity" pattern="^[\d]+(\.[\d]+)?$" title="Please input number." required>
 <br>
-    <div class="btn-group text-center" role="group" style="max-width: 90%; max-width: 300px;">
+    <div class="btn-group text-center" role="group" style="width: 90%; max-width: 300px;">
 
 <button class="btn btn-success btn-sm" type="submit" name="side_symbol" value="Buy_{{ position.symbol }}" style="min-width: 150px;">Long</button>
-  <button class="btn btn-danger btn-sm"type="submit" name="side_symbol" value="Sell_{{ position.symbol }}" style="min-width: 150px;">Short</button>
+  <button class="btn btn-danger btn-sm" type="submit" name="side_symbol" value="Sell_{{ position.symbol }}" style="min-width: 150px;">Short</button>
         </div>
 </form>
 </div>
 
 <form action="/submit" class="col-lg-6 offset-lg-3 " method="post">
     <p class="gap-1">
-    <div class="d-grid gap-2 d-md-block mx-auto text-center" style="max-width: 600px; max-width: 90%">
+    <div class="d-grid gap-2 d-md-block mx-auto text-center" style="max-width: 600px; width: 90%">
         <button class="btn" style="color: darkblue" type="button">{{ position.symbol }}
             {% if position.side == 'Buy' %} 📈 {% endif %}
             {% if position.side == 'Sell' %} 📉 {% endif %}
@@ -73,26 +73,26 @@
 
         {% if (position.side == 'Buy') or (position.side == 'Sell') %}
         <button aria-pressed="true" class="btn active" name="myData" type="submit"
-                value="{'action':'cancel_trade','symbol':'{{ position.symbol }}', 'page':'panel'}">Cancel trade
+                value="{'action':'cancel_trade','symbol':'{{ position.symbol }}'}">Cancel trade
         </button>
 
         <button aria-pressed="true" class="btn active" name="myData" type="submit"
-                value="{'action':'set_sl_breakeven','symbol':'{{ position.symbol }}','page':'panel'}">SL Breakeven
+                value="{'action':'set_sl_breakeven','symbol':'{{ position.symbol }}'}">SL Breakeven
         </button>
 
         <button aria-pressed="true" class="btn active" name="myData" type="submit"
-                value="{'action':'cancel_add_orders','symbol':'{{ position.symbol }}','page':'panel'}">Cancel add orders
+                value="{'action':'cancel_add_orders','symbol':'{{ position.symbol }}'}">Cancel add orders
         </button>
         {% endif %}
     </div>
-    </p>
+
 
 </form>
   </div>
 
 
   <div class="tab-pane" id="profile" role="tabpanel" aria-labelledby="profile-tab">
-      <div class="mx-auto" style="max-width: 90%; max-width: 300px;">
+      <div class="mx-auto" style="width: 90%; max-width: 300px;">
     <table class="table table-borderless" style="margin-left: auto; margin-right: auto">
         <thead>
         <tr>
@@ -166,7 +166,7 @@
 </div>
 
 
-<div class="mx-auto" style="max-width: 90%; max-width: 300px;">
+<div class="mx-auto" style="width: 90%; max-width: 300px;">
     <table class="table table-borderless" style="margin-left: auto; margin-right: auto">
         <thead>
         <tr>
@@ -201,7 +201,7 @@
 
         <tr>
             <td><b>Funding Rate</b></td>
-            <td{{ticker.fundingRate}}</td>
+            <td>{{ticker.fundingRate}}</td>
         </tr>
 
         </tbody>
