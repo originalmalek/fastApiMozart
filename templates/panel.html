@@ -44,7 +44,7 @@
 {% for position in positions %}
 <form action="/submit" class="col-lg-6 offset-lg-3 " method="post">
     <p class="gap-1">
-    <div class="d-grid gap-2 d-md-block mx-auto text-center" style="max-width: 600px; max-width: 90%">
+    <div class="d-grid gap-2 d-md-block mx-auto text-center" style="max-width: 600px; width: 90%">
         <a class="btn" style="color: darkblue; min-width: 250px; text-align: right;" type="button" href="{{ position.symbol }}">{{ position.symbol }}
     {% if position.side == 'Buy' %} 📈 {% endif %}
     {% if position.side == 'Sell' %} 📉 {% endif %}
@@ -67,7 +67,7 @@
         </button>
         {% endif %}
     </div>
-    </p>
+
 
 </form>
 {% endfor %}
@@ -80,7 +80,7 @@
     }
 </script>
 
-<div class="mx-auto" style="max-width: 90%; max-width: 300px;">
+<div class="mx-auto" style="max-width: 90%; width: 300px;">
     <table class="table table-borderless">
         <tr>
             <td><b>Total positions</b></td>
