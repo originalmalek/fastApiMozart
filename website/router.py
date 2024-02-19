@@ -190,7 +190,7 @@ async def exchange_keys_page(request: Request):
 
 
 @website.post('/form_create_trade')
-async def process_form_data(request: Request, inputField: str = Form(default=None)):
+async def create_trade(request: Request, inputField: str = Form(default=None)):
     if not inputField:
         return redirect(url=f'/panel', status_code=status.HTTP_302_FOUND, request=request, status='error',
                         message='Trade is not created. Please input trade details')
@@ -210,9 +210,9 @@ async def process_form_data(request: Request, inputField: str = Form(default=Non
         return redirect(url='/exchange_keys', status_code=status.HTTP_302_FOUND, request=request, status='error',
                         message='Keys are not valid. Please update your Bybit API keys')
 
-    except InvalidRequestError:
+    except InvalidRequestError as e:
         return redirect(url=f'/panel', status_code=status.HTTP_302_FOUND, request=request, status='error',
-                        message=f'Trade is not created {trade["symbol"]}')
+                        message=f'Trade is not created {trade["symbol"]} {e.message}')
 
     except KeyError:
         return redirect(url=f'/panel', status_code=status.HTTP_302_FOUND, request=request, status='error',
