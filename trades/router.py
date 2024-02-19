@@ -10,6 +10,8 @@ from trades.errors import raise_conflict_error, raise_unauthorized_error
 from schemas import Signal, Symbol, CoinsData, StopLoss
 from utils import mozart_deal, bybit_api
 
+from fastapi_cache.decorator import cache
+
 trades = APIRouter(prefix='/api',
                    tags=['Trades'])
 
@@ -108,10 +110,11 @@ async def get_price(coins_data: CoinsData, user: Annotated[User, Depends(validat
 
 
 @trades.get('/exchanges')
+@cache(expire=86400)
 async def exchanges(user: Annotated[User, Depends(validate_user)]):
     response = cryptocompare.get_exchanges()
     if not response:
-        raise_conflict_error(message='Incorrect data')
+        raise_conflict_error(message='Server error. Try your request later')
 
     return {'status': 'success', 'message': response}
 
