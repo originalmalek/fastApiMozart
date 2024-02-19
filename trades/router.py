@@ -6,7 +6,7 @@ from pybit.exceptions import FailedRequestError, InvalidRequestError
 
 from users.dependencies import validate_user, check_exchange_keys
 from users.schemas import User, ExchangeKeys
-from trades.errors import raise_conflict_error
+from trades.errors import raise_conflict_error, raise_unauthorized_error
 from schemas import Signal, Symbol, CoinsData, StopLoss
 from utils import mozart_deal, bybit_api
 
@@ -15,11 +15,11 @@ trades = APIRouter(prefix='/api',
 
 
 @trades.post('/cancel_trade')
-async def create_trade(symbol: Symbol, keys: Annotated[ExchangeKeys, Depends(check_exchange_keys)]):
+async def cancel_trade(symbol: Symbol, keys: Annotated[ExchangeKeys, Depends(check_exchange_keys)]):
     try:
         response = mozart_deal.cancel_trade(symbol=symbol.symbol, api_key=keys.api_key, api_secret=keys.api_secret)
     except FailedRequestError:
-        raise_conflict_error(message='Failed access to the bybit API. Please update your keys')
+        raise_unauthorized_error()
     except InvalidRequestError as e:
         raise_conflict_error(message=e.message)
     if response is False:
@@ -33,7 +33,7 @@ async def set_sl_breakeven(symbol: Symbol, keys: Annotated[ExchangeKeys, Depends
     try:
         response = mozart_deal.set_sl_breakeven(symbol=symbol.symbol, api_key=keys.api_key, api_secret=keys.api_secret)
     except FailedRequestError:
-        raise_conflict_error(message='Failed access to the bybit API. Please update your keys')
+        raise_unauthorized_error()
     except InvalidRequestError as e:
         raise_conflict_error(message=e.message)
 
@@ -48,7 +48,7 @@ async def set_sl_breakeven(symbol: Symbol, keys: Annotated[ExchangeKeys, Depends
     try:
         response = mozart_deal.cancel_add_orders(symbol=symbol.symbol, api_key=keys.api_key, api_secret=keys.api_secret)
     except FailedRequestError:
-        raise_conflict_error(message='Failed access to the bybit API. Please update your keys')
+        raise_unauthorized_error()
     except InvalidRequestError as e:
         raise_conflict_error(message=e.message)
 
@@ -63,7 +63,7 @@ async def get_positions(symbol: Symbol, keys: Annotated[ExchangeKeys, Depends(ch
     try:
         response = bybit_api.get_position_info(symbol=symbol.symbol, api_key=keys.api_key, api_secret=keys.api_secret)
     except FailedRequestError:
-        raise_conflict_error(message='Failed access to the bybit API. Please update your keys')
+        raise_unauthorized_error()
     except InvalidRequestError as e:
         raise_conflict_error(message=e.message)
     if response is False:
@@ -77,7 +77,7 @@ async def get_positions(keys: Annotated[ExchangeKeys, Depends(check_exchange_key
     try:
         response = bybit_api.get_position_info(api_key=keys.api_key, api_secret=keys.api_secret)
     except FailedRequestError:
-        raise_conflict_error(message='Failed access to the bybit API. Please update your keys')
+        raise_unauthorized_error()
     except InvalidRequestError as e:
         raise_conflict_error(message=e.message)
     if response is False:
@@ -91,13 +91,11 @@ async def create_trade(signal: Signal, keys: Annotated[ExchangeKeys, Depends(che
     try:
         response = mozart_deal.create_trade(trade=signal, api_key=keys.api_key, api_secret=keys.api_secret)
     except FailedRequestError:
-        raise_conflict_error(message='Failed access to the bybit API. Please update your keys')
+        raise_unauthorized_error()
     except InvalidRequestError as e:
-        raise_conflict_error(message=e.message)
-    if response is False:
-        raise_conflict_error(message='Add orders not canceled')
+        raise_conflict_error(message=f'Trade is not created e.message')
 
-    return {'status': 'success', 'message': 'Add orders are canceled'}
+    return {'status': 'success', 'message': 'Trade is created'}
 
 
 @trades.get('/prices')
@@ -132,7 +130,7 @@ def set_stop_loss(sl_data: StopLoss, keys: Annotated[ExchangeKeys, Depends(check
                                api_secret=api_secret,
                                sl_size=position['result']['list'][0]['size'])
     except FailedRequestError:
-        raise_conflict_error(message='Failed access to the bybit API. Please update your keys')
+        raise_unauthorized_error()
     except InvalidRequestError as e:
         raise_conflict_error(message=e.message)
 
