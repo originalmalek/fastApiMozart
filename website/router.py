@@ -14,6 +14,8 @@ from users.db_queries import update_exchange_keys
 from utils import mozart_deal
 from utils.bybit_api import get_position_info, get_tickers, trading_stop, open_order, get_instruments_info
 
+from fastapi_cache.decorator import cache
+
 website = APIRouter(include_in_schema=False)
 templates = Jinja2Templates(directory='templates')
 
@@ -124,6 +126,11 @@ async def logout(request: Request):
                     message='Logout successful', delete_cookie=True)
 
 
+@cache(expire=60*60*24)
+async def get_cached_instruments(api_key: str, api_secret: str, symbol: str = None):
+    return get_instruments_info(api_secret=api_secret, api_key=api_key, symbol=symbol)['result']['list']
+
+
 @website.get('/panel')
 async def show_panel(request: Request):
     try:
@@ -131,7 +138,8 @@ async def show_panel(request: Request):
         api_key = keys.api_key
         api_secret = keys.api_secret
         positions = await get_sorted_positions(api_key, api_secret)
-        instruments = get_instruments_info(api_secret=api_secret, api_key=api_key, symbol=None)['result']['list']
+
+        instruments = await get_cached_instruments(api_key, api_secret)
 
         total_unrealised_pnl = 0
         total_realised_pnl = 0
@@ -141,12 +149,14 @@ async def show_panel(request: Request):
             realised_pnl = float(position['cumRealisedPnl'])
             total_unrealised_pnl += unrealised_pnl
             total_realised_pnl += realised_pnl
+
         return templates.TemplateResponse('panel.html', {'request': request, 'positions': positions,
                                                          'unrealised_pnl': round(total_unrealised_pnl, 2),
                                                          'realised_pnl': round(total_realised_pnl, 2),
                                                          'instruments': instruments,
                                                          'status': request.session.pop('status', None),
                                                          'message': request.session.pop('message', None)})
+
     except HTTPException:
         return redirect(url='/exchange_keys', status_code=status.HTTP_303_SEE_OTHER, request=request, status='error',
                         message='Keys are not added. Please add your Bybit API keys', delete_cookie=None)

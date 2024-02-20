@@ -12,6 +12,7 @@ from utils import mozart_deal, bybit_api
 
 from fastapi_cache.decorator import cache
 
+
 trades = APIRouter(prefix='/api',
                    tags=['Trades'])
 
@@ -109,13 +110,16 @@ async def get_price(coins_data: CoinsData, user: Annotated[User, Depends(validat
     return {'status': 'success', 'message': response}
 
 
-@trades.get('/exchanges')
-@cache(expire=86400)
-async def exchanges(user: Annotated[User, Depends(validate_user)]):
+@cache(expire=60*60*24)  # Caching for 24 hours
+async def get_exchanges_from_cryptocompare():
     response = cryptocompare.get_exchanges()
     if not response:
         raise_conflict_error(message='Server error. Try your request later')
+    return response
 
+@trades.get('/exchanges')
+async def exchanges(user: Annotated[User, Depends(validate_user)]):
+    response = await get_exchanges_from_cryptocompare()
     return {'status': 'success', 'message': response}
 
 
