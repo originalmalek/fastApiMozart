@@ -14,7 +14,7 @@ from users.db_queries import update_exchange_keys
 from utils import mozart_deal
 from utils.bybit_api import get_position_info, get_tickers, trading_stop, open_order, get_instruments_info
 
-from fastapi_cache.decorator import cache
+from utils.redis_cache import get_cached_instruments
 
 website = APIRouter(include_in_schema=False)
 templates = Jinja2Templates(directory='templates')
@@ -124,11 +124,6 @@ async def exchange_keys_page(request: Request):
 async def logout(request: Request):
     return redirect(url='/login', status_code=status.HTTP_302_FOUND, request=request, status='success',
                     message='Logout successful', delete_cookie=True)
-
-
-@cache(expire=60*60*24, namespace='all_exchange_pairs')
-async def get_cached_instruments(api_key: str, api_secret: str, symbol: str = None):
-    return get_instruments_info(api_secret=api_secret, api_key=api_key, symbol=symbol)['result']['list']
 
 
 @website.get('/panel')

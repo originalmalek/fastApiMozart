@@ -8,9 +8,8 @@ from users.dependencies import validate_user, check_exchange_keys
 from users.schemas import User, ExchangeKeys
 from trades.errors import raise_conflict_error, raise_unauthorized_error
 from schemas import Signal, Symbol, CoinsData, StopLoss
-from utils import mozart_deal, bybit_api
+from utils import mozart_deal, bybit_api, redis_cache
 
-from fastapi_cache.decorator import cache
 
 
 trades = APIRouter(prefix='/api',
@@ -110,16 +109,9 @@ async def get_price(coins_data: CoinsData, user: Annotated[User, Depends(validat
     return {'status': 'success', 'message': response}
 
 
-@cache(expire=60*60*24, namespace='cryptocompare_exchanges')  # Caching for 24 hours
-async def get_exchanges_from_cryptocompare():
-    response = cryptocompare.get_exchanges()
-    if not response:
-        raise_conflict_error(message='Server error. Try your request later')
-    return response
-
 @trades.get('/exchanges')
 async def exchanges(user: Annotated[User, Depends(validate_user)]):
-    response = await get_exchanges_from_cryptocompare()
+    response = await redis_cache.get_exchanges_from_cryptocompare()
     return {'status': 'success', 'message': response}
 
 
