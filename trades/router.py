@@ -110,7 +110,7 @@ async def get_price(coins_data: CoinsData, user: Annotated[User, Depends(validat
     return {'status': 'success', 'message': response}
 
 
-@cache(expire=60*60*24)  # Caching for 24 hours
+@cache(expire=60*60*24, namespace='cryptocompare_exchanges')  # Caching for 24 hours
 async def get_exchanges_from_cryptocompare():
     response = cryptocompare.get_exchanges()
     if not response:
