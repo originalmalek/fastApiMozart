@@ -4,16 +4,14 @@ import cryptocompare
 from fastapi import Depends, APIRouter
 from pybit.exceptions import FailedRequestError, InvalidRequestError
 
+from schemas import Signal, Symbol, CoinsData, StopLoss
+from trades.errors import raise_conflict_error, raise_unauthorized_error
 from users.dependencies import validate_user, check_exchange_keys
 from users.schemas import User, ExchangeKeys
-from trades.errors import raise_conflict_error, raise_unauthorized_error
-from schemas import Signal, Symbol, CoinsData, StopLoss
-from utils import mozart_deal, bybit_api, redis_cache
+from utils import mozart_deal, bybit_api
+from utils.utils import get_exchanges_from_cryptocompare
 
-
-
-trades = APIRouter(prefix='/api',
-                   tags=['Trades'])
+trades = APIRouter(prefix='/api', tags=['Trades'])
 
 
 @trades.post('/cancel_trade')
@@ -111,7 +109,7 @@ async def get_price(coins_data: CoinsData, user: Annotated[User, Depends(validat
 
 @trades.get('/exchanges')
 async def exchanges(user: Annotated[User, Depends(validate_user)]):
-    response = await redis_cache.get_exchanges_from_cryptocompare()
+    response = await get_exchanges_from_cryptocompare()
     return {'status': 'success', 'message': response}
 
 
@@ -123,10 +121,7 @@ def set_stop_loss(sl_data: StopLoss, keys: Annotated[ExchangeKeys, Depends(check
         api_key = keys.api_key
         api_secret = keys.api_secret
         position = bybit_api.get_position_info(symbol=symbol, api_secret=api_secret, api_key=api_key)
-        bybit_api.trading_stop(symbol=symbol,
-                               sl_price=stop_price,
-                               api_key=api_key,
-                               api_secret=api_secret,
+        bybit_api.trading_stop(symbol=symbol, sl_price=stop_price, api_key=api_key, api_secret=api_secret,
                                sl_size=position['result']['list'][0]['size'])
     except FailedRequestError:
         raise_unauthorized_error()

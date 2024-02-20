@@ -12,9 +12,8 @@ import users.schemas
 from users import db_queries
 from users.db_queries import update_exchange_keys
 from utils import mozart_deal
-from utils.bybit_api import get_position_info, get_tickers, trading_stop, open_order, get_instruments_info
-
-from utils.redis_cache import get_cached_instruments
+from utils.bybit_api import get_position_info, get_tickers, trading_stop, open_order
+from utils.utils import get_cached_instruments
 
 website = APIRouter(include_in_schema=False)
 templates = Jinja2Templates(directory='templates')
@@ -163,6 +162,10 @@ async def show_panel(request: Request):
     except InvalidRequestError:
         return redirect(url='/exchange_keys', status_code=status.HTTP_302_FOUND, request=request, status='error',
                         message='Wrong request to Bybit API, Please update your Bybit API keys', delete_cookie=None)
+
+    except AttributeError:
+        return redirect(url='/exchange_keys', status_code=status.HTTP_302_FOUND, request=request, status='error',
+                        message='Keys are not valid. Please update your Bybit API keys', delete_cookie=None)
 
 
 @website.post("/exchange_keys")
@@ -338,20 +341,16 @@ async def open_trade_page(request: Request, symbol: str):
 
 
 @website.post("/market_position")
-async def analyze(request: Request,
-                  quantity: Optional[str] = Form(default=None),
+async def analyze(request: Request, quantity: Optional[str] = Form(default=None),
                   side_symbol: Optional[str] = Form(...)):
     try:
         keys = await get_exchange_keys(request)
-        api_key=keys.api_key
-        api_secret=keys.api_secret
+        api_key = keys.api_key
+        api_secret = keys.api_secret
         side, symbol = side_symbol.split('_')
         mozart_deal.set_leverage(symbol, api_key=api_key, api_secret=api_secret)
 
-        open_order(symbol=symbol, side=side,
-                   order_type='Market',
-                   quantity=quantity,
-                   api_key=api_key,
+        open_order(symbol=symbol, side=side, order_type='Market', quantity=quantity, api_key=api_key,
                    api_secret=api_secret)
 
         return redirect(url=f'/{symbol}', status_code=status.HTTP_302_FOUND, request=request, status='success',
