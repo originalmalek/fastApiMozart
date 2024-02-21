@@ -4,7 +4,8 @@ from sqlalchemy.exc import NoResultFound, IntegrityError
 from sqlalchemy.future import select
 
 from database import async_session
-from utils.utils import decrypt_data, encrypt_data
+from utils.utilities import encrypt_data, decrypt_data
+
 from .models import User, ExchangeKeys
 
 

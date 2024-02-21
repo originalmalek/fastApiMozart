@@ -1,22 +1,19 @@
 from fastapi import HTTPException, Header, status, Depends
-from environs import Env
 from typing import Annotated
 import jwt
 from jwt.exceptions import DecodeError, ExpiredSignatureError
 from passlib.context import CryptContext
 from datetime import datetime, timedelta
 
+from config import settings
 from . import db_queries
 from .schemas import User
 
 
-env = Env()
-env.read_env()
-
-middleware_key = env('MIDDLEWARE_KEY')
-algorithm_key = env('ALGORITHM_KEY')
-algorithm = env('ALGORITHM')
-access_token_expire = env.int('ACCESS_TOKEN_EXPIRES')
+middleware_key = settings.MIDDLEWARE_KEY
+algorithm_key = settings.ALGORITHM_KEY
+algorithm = settings.ALGORITHM
+access_token_expire = settings.ACCESS_TOKEN_EXPIRES
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 

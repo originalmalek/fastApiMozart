@@ -9,7 +9,7 @@ from trades.errors import raise_conflict_error, raise_unauthorized_error
 from users.dependencies import validate_user, check_exchange_keys
 from users.schemas import User, ExchangeKeys
 from utils import mozart_deal, bybit_api
-from utils.utils import get_exchanges_from_cryptocompare
+from utils.utilities import get_exchanges_from_cryptocompare
 
 trades = APIRouter(prefix='/api', tags=['Trades'])
 

@@ -13,7 +13,7 @@ from users import db_queries
 from users.db_queries import update_exchange_keys
 from utils import mozart_deal
 from utils.bybit_api import get_position_info, get_tickers, trading_stop, open_order
-from utils.utils import get_cached_instruments
+from utils.utilities import get_cached_instruments
 
 website = APIRouter(include_in_schema=False)
 templates = Jinja2Templates(directory='templates')

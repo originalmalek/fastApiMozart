@@ -5,13 +5,12 @@ from cryptography.fernet import Fernet
 from environs import Env
 from fastapi_cache.decorator import cache
 
+from config import settings
 from trades.errors import raise_conflict_error
 from utils.bybit_api import get_instruments_info
 
-env = Env()
-env.read_env()
 
-key = env("CRYPTOGRAPHY_KEY").encode()
+key = settings.CRYPTOGRAPHY_KEY.encode()
 cipher_suite = Fernet(key)
 
 
