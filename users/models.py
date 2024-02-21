@@ -10,6 +10,7 @@ class User(Base):
     username = Column('username', String(60), unique=True)
     password = Column('password', String(60))
 
+
 class ExchangeKeys(Base):
     __tablename__ = 'exchange_key'
     user_id = Column(Integer, ForeignKey('users.id', ondelete='CASCADE'), primary_key=True)
