@@ -27,6 +27,13 @@ async def get_user_by_username(username):
         return user
 
 
+async def get_user_by_user_id(user_id):
+    async with async_session.begin() as session:
+        result = await session.execute(select(User).filter_by(id=user_id))
+        user = result.scalar_one_or_none()
+        return user
+
+
 async def update_exchange_keys(api_key, api_secret, user_id):
     encrypted_api_key = encrypt_data(api_key)
     encrypted_api_secret = encrypt_data(api_secret)

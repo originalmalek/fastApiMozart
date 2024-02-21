@@ -30,7 +30,7 @@ async def validate_user(token: Annotated[str, Header()]):
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, detail={'status': 'error', 'message': 'Invalid token'})
     except ExpiredSignatureError:
         raise HTTPException(status.HTTP_403_FORBIDDEN, detail={'status': 'error', 'message': 'Token expired'})
-    user = await db_queries.get_user_by_username(decrypted_user_data['username'])
+    user = await db_queries.get_user_by_user_id(decrypted_user_data['user_id'])
     if user is None:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, detail={'status': 'error', 'message': 'Invalid credentials'})
     return user
@@ -43,7 +43,7 @@ async def create_token(username: str, password: str):
         return None, None
 
     expiration_time = datetime.utcnow() + timedelta(access_token_expire)
-    token = jwt.encode({'username': username, 'exp': expiration_time}, key=algorithm_key, algorithm=algorithm)
+    token = jwt.encode({'user_id': user.id, 'exp': expiration_time}, key=algorithm_key, algorithm=algorithm)
     return token, expiration_time
 
 
