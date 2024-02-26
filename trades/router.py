@@ -1,8 +1,9 @@
-from typing import Annotated
+from typing import Annotated, List, Union
 
 import cryptocompare
-from fastapi import Depends, APIRouter
+from fastapi import Depends, APIRouter, Query
 from pybit.exceptions import FailedRequestError, InvalidRequestError
+from pydantic import constr
 
 from schemas import Signal, Symbol, CoinsData, StopLoss
 from trades.errors import raise_conflict_error, raise_unauthorized_error
@@ -98,9 +99,11 @@ async def create_trade(signal: Signal, keys: Annotated[ExchangeKeys, Depends(che
     return {'status': 'success', 'message': 'Trade is created'}
 
 
-@trades.get('/prices')
-async def get_price(coins_data: CoinsData, user: Annotated[User, Depends(validate_user)]):
-    response = cryptocompare.get_price(coins_data.coins_from, coins_data.coins_to)
+@trades.get("/prices")
+async def get_prices(user: Annotated[User, Depends(validate_user)],
+    coins_from: constr(min_length=1) = Query(...),
+    coins_to: constr(min_length=1) = Query(...), ):
+    response = cryptocompare.get_price(coins_from, coins_to)
     if not response:
         raise_conflict_error(message='Incorrect data')
 
