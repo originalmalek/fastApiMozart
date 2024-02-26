@@ -7,8 +7,8 @@ from database import Base
 class User(Base):
     __tablename__ = 'users'
     id = Column(Integer, primary_key=True, autoincrement=True)
-    username = Column('username', String(60), unique=True)
-    password = Column('password', String(60))
+    username = Column('username', String(60), unique=True, nullable=False)
+    password = Column('password', String(60), nullable=False)
 
 
 class ExchangeKeys(Base):
