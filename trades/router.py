@@ -1,11 +1,11 @@
-from typing import Annotated, List, Union
+from typing import Annotated
 
 import cryptocompare
 from fastapi import Depends, APIRouter, Query
 from pybit.exceptions import FailedRequestError, InvalidRequestError
 from pydantic import constr
 
-from schemas import Signal, Symbol, CoinsData, StopLoss
+from schemas import Signal, Symbol, StopLoss
 from trades.errors import raise_conflict_error, raise_unauthorized_error
 from users.dependencies import validate_user, check_exchange_keys
 from users.schemas import User, ExchangeKeys
@@ -15,7 +15,7 @@ from utils.utilities import get_exchanges_from_cryptocompare
 trades = APIRouter(prefix='/api', tags=['Trades'])
 
 
-@trades.post('/cancel_trade')
+@trades.delete('/trade')
 async def cancel_trade(symbol: Symbol, keys: Annotated[ExchangeKeys, Depends(check_exchange_keys)]):
     try:
         response = mozart_deal.cancel_trade(symbol=symbol.symbol, api_key=keys.api_key, api_secret=keys.api_secret)
@@ -44,7 +44,7 @@ async def set_sl_breakeven(symbol: Symbol, keys: Annotated[ExchangeKeys, Depends
     return {'status': 'success', 'message': 'SL Breakeven is set'}
 
 
-@trades.post('/cancel_add_orders')
+@trades.delete('/add_orders')
 async def set_sl_breakeven(symbol: Symbol, keys: Annotated[ExchangeKeys, Depends(check_exchange_keys)]):
     try:
         response = mozart_deal.cancel_add_orders(symbol=symbol.symbol, api_key=keys.api_key, api_secret=keys.api_secret)
@@ -88,22 +88,21 @@ async def get_positions(keys: Annotated[ExchangeKeys, Depends(check_exchange_key
     return {'status': 'success', 'message': response}
 
 
-@trades.post('/create_trade')
+@trades.post('/trade')
 async def create_trade(signal: Signal, keys: Annotated[ExchangeKeys, Depends(check_exchange_keys)]):
     try:
-        response = mozart_deal.create_trade(trade=signal, api_key=keys.api_key, api_secret=keys.api_secret)
+        mozart_deal.create_trade(trade=signal, api_key=keys.api_key, api_secret=keys.api_secret)
     except FailedRequestError:
         raise_unauthorized_error()
     except InvalidRequestError as e:
-        raise_conflict_error(message=f'Trade is not created e.message')
+        raise_conflict_error(message=f'Trade is not created{e.message}')
 
     return {'status': 'success', 'message': 'Trade is created'}
 
 
 @trades.get("/prices")
-async def get_prices(user: Annotated[User, Depends(validate_user)],
-    coins_from: constr(min_length=1) = Query(...),
-    coins_to: constr(min_length=1) = Query(...), ):
+async def get_prices(user: Annotated[User, Depends(validate_user)], coins_from: constr(min_length=1) = Query(...),
+                     coins_to: constr(min_length=1) = Query(...), ):
     response = cryptocompare.get_price(coins_from, coins_to)
     if not response:
         raise_conflict_error(message='Incorrect data')
