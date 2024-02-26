@@ -23,6 +23,9 @@ class Settings(BaseSettings):
 
     SSL_CERTIFICATE_FILE_NAME: str
     SSL_KEY_FILE_NAME: str
+
+    TEST_EXCHANGE_API_KEY: str
+    TEST_EXCHANGE_API_SECRET: str
     @property
     def DATABASE_URL(self):
         return (f'postgresql+asyncpg://{self.DB_USER}:'
