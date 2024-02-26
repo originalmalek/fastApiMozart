@@ -1,11 +1,12 @@
-from pydantic import BaseModel, Extra
+from pydantic import BaseModel, Extra, constr
 
 
 class User(BaseModel, extra=Extra.forbid):
-    password: str
-    username: str
+    username: constr(min_length=2)
+    password: constr(min_length=2)
 
 
 class ExchangeKeys(BaseModel, extra=Extra.forbid):
-    api_key: str
-    api_secret: str
+    api_key: constr(min_length=2)
+    api_secret: constr(min_length=2)
+
