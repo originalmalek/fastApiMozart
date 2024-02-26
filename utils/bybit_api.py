@@ -19,7 +19,7 @@ def open_order(symbol, side, quantity, order_type, api_key, api_secret, price=No
 	)
 
 
-def cancel_all_orders(symbol, api_key, api_secret, category='linear',):
+def cancel_all_orders(symbol, api_key, api_secret, category='linear'):
 	session = create_session(api_key=api_key, api_secret=api_secret)
 	return session.cancel_all_orders(
 		category=category,
@@ -95,17 +95,4 @@ def trading_stop(symbol, sl_price, sl_size, api_key, api_secret, tpsl_mode='Full
 		stopLoss=str(sl_price),
 		slSize=str(sl_size),
 		positionIdx=position_idx,
-	)
-
-
-def trading_tp(symbol, tp_price, tp_size, api_key, api_secret, tpsl_mode='Partial',category='linear',
-					   position_idx=0):
-	session = create_session(api_key=api_key, api_secret=api_secret)
-	return session.set_trading_stop(
-		category=category,
-		symbol=symbol,
-		tpslMode=tpsl_mode,
-		takeProfit=str(tp_price),
-		tpSize=str(tp_size),
-		position_idx=position_idx,
 	)
