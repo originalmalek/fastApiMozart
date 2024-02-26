@@ -25,11 +25,11 @@ def place_position_orders(one_order_position_amount, symbol, market_entry, side,
 
 def place_take_profit_orders(take_profit_order_amount, symbol, take_profit_orders, api_key, api_secret):
     for take_profit_order in take_profit_orders:
-        bybit_api.trading_tp(symbol=symbol,
-                             tp_size=take_profit_order_amount,
-                             tp_price=take_profit_order,
+        bybit_api.trading_stop(symbol=symbol,
+                             sl_size=take_profit_order_amount,
+                             sl_price=take_profit_order,
                              api_key=api_key,
-                             api_secret=api_secret)
+                             api_secret=api_secret, tpsl_mode='Full')
 
 
 def calculate_total_positions_amount(risk, stop_loss_price, position_amount, last_price):
