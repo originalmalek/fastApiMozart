@@ -60,14 +60,21 @@ async def test_update_keys_valid_token(ac: AsyncClient):
 
     assert response.status_code == 200
 
-
-async def test_update_keys_invalid_token(ac: AsyncClient):
+@pytest.mark.parametrize('api_key, api_secret, status_code',
+                         [(settings.TEST_EXCHANGE_API_SECRET, settings.TEST_EXCHANGE_API_SECRET, 200),
+                          ('1234', settings.TEST_EXCHANGE_API_SECRET, 401),
+                          (settings.TEST_EXCHANGE_API_SECRET, '1234', 401),
+                          ('', '', 422),
+                          ('', 'adf', 422),
+                          ('adff', '', 422),
+                          ])
+async def test_update_keys_invalid_token(ac: AsyncClient, api_key, api_secret, status_code):
     response = await ac.put(
         "/api/keys",
         headers={'token': 'wrong_token'},
         json={
-            "api_key": "MyTestApiKey",
-            "api_secret": "MyTestApiSecret",
+            "api_key": api_key,
+            "api_secret": api_secret,
         },
     )
 
@@ -88,3 +95,53 @@ async def test_exchanges(ac: AsyncClient, coin1, coin2, status_code):
     )
 
     assert response.status_code == status_code
+
+
+@pytest.mark.parametrize('api_key, api_secret, status_code',
+                         [(settings.TEST_EXCHANGE_API_KEY, settings.TEST_EXCHANGE_API_SECRET, 200),
+                          ('1234', settings.TEST_EXCHANGE_API_SECRET, 401),
+                          (settings.TEST_EXCHANGE_API_SECRET, '1234', 401),
+                          ])
+async def test_positions(ac: AsyncClient, api_key, api_secret, status_code):
+    token = await get_token(ac)
+
+    await ac.put(
+        "/api/keys",
+        headers={'token': token},
+        json={
+            "api_key": api_key,
+            "api_secret": api_secret,
+        },
+    )
+
+    response = await ac.get(
+        f"/api/positions",
+        headers={'token': token},
+    )
+
+    assert response.status_code == status_code
+
+
+@pytest.mark.parametrize('symbol, status_code',[('ADAUSDT', 200),
+                                              ('asdf', 409),
+                                                      ])
+async def test_exchanges(ac: AsyncClient, symbol, status_code):
+    token = await get_token(ac)
+
+    await ac.put(
+        "/api/keys",
+        headers={'token': token},
+        json={
+            "api_key": settings.TEST_EXCHANGE_API_KEY,
+            "api_secret": settings.TEST_EXCHANGE_API_SECRET,
+        },
+    )
+
+    response = await ac.get(
+        f"/api/position?symbol={symbol}",
+        headers={'token': token},
+    )
+    print(response)
+
+    assert response.status_code == status_code
+
