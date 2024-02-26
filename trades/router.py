@@ -60,9 +60,10 @@ async def set_sl_breakeven(symbol: Symbol, keys: Annotated[ExchangeKeys, Depends
 
 
 @trades.get('/position')
-async def get_positions(symbol: Symbol, keys: Annotated[ExchangeKeys, Depends(check_exchange_keys)]):
+async def get_positions(keys: Annotated[ExchangeKeys, Depends(check_exchange_keys)],
+                        symbol: constr(min_length=1) = Query(...)):
     try:
-        response = bybit_api.get_position_info(symbol=symbol.symbol, api_key=keys.api_key, api_secret=keys.api_secret)
+        response = bybit_api.get_position_info(symbol=symbol, api_key=keys.api_key, api_secret=keys.api_secret)
     except FailedRequestError:
         raise_unauthorized_error()
     except InvalidRequestError as e:
