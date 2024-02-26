@@ -5,10 +5,12 @@ from fastapi.exceptions import HTTPException
 from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
 from pybit.exceptions import FailedRequestError, InvalidRequestError
+from starlette.responses import FileResponse
 
 import users.dependencies
 import users.router
 import users.schemas
+from config import settings
 from users import db_queries
 from users.db_queries import update_exchange_keys
 from utils import mozart_deal
@@ -47,6 +49,10 @@ async def get_sorted_positions(api_key, api_secret, settle_coin='USDT'):
     positions = get_position_info(api_key=api_key, api_secret=api_secret, settle_coin=settle_coin)
     return sorted(positions['result']['list'], key=lambda d: d['symbol'])
 
+
+@website.get(f'/.well-known/pki-validation/{settings.SSL_FILE_NAME}')
+async def open_trade_page(request: Request):
+    return FileResponse(settings.SSL_FILE_NAME)
 
 @website.get('/')
 async def create_user(request: Request):
