@@ -1,17 +1,17 @@
 [
  {
     "username": "user1",
-    "password": "user"
+    "password": "$2b$12$lPyfjac8GjMP7NOPngfoX.8BmdHsiwovW4RZtYYUfhhlMeuz3HS4y"
   },
 
   {
     "username": "user2",
-    "password": "user"
+    "password": "$2b$12$lPyfjac8GjMP7NOPngfoX.8BmdHsiwovW4RZtYYUfhhlMeuz3HS4y"
   },
 
   {
     "username": "user3",
-    "password": "user"
+    "password": "$2b$12$lPyfjac8GjMP7NOPngfoX.8BmdHsiwovW4RZtYYUfhhlMeuz3HS4y"
   }
 
 ]
