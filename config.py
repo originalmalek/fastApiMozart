@@ -16,8 +16,13 @@ class Settings(BaseSettings):
     DB_USER: str
     DB_PASS: str
     DB_NAME: str
+    SSL_FILE_NAME: str
 
+    TEST_USERNAME: str
+    TEST_PASSWORD: str
 
+    SSL_CERTIFICATE_FILE_NAME: str
+    SSL_KEY_FILE_NAME: str
     @property
     def DATABASE_URL(self):
         return (f'postgresql+asyncpg://{self.DB_USER}:'
