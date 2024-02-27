@@ -10,6 +10,7 @@ class Settings(BaseSettings):
     CRYPTOCOMPARE_API_KEY: str
     MIDDLEWARE_KEY: str
     MODE: Literal['DEV', 'TEST', 'PROD']
+    LOG_LEVEL: Literal['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL']
     CRYPTOGRAPHY_KEY: str
     DB_HOST: str
     DB_PORT: int
