@@ -1,10 +1,14 @@
-import logging
+import time
+
+import sentry_sdk
 
 from starlette.middleware.cors import CORSMiddleware
 from starlette.middleware.sessions import SessionMiddleware
 from fastapi import FastAPI
+from starlette.requests import Request
 
 from config import settings
+from logger import logger
 from users.dependencies import middleware_key
 from website.router import website
 from users.router import users
@@ -15,6 +19,12 @@ from fastapi_cache.backends.redis import RedisBackend
 
 
 from redis import asyncio as aioredis
+
+
+sentry_sdk.init(
+    dsn="https://f20147196e18bc227a6e2fc28fcac07c@o4506815193350144.ingest.sentry.io/4506815194464256",
+    traces_sample_rate=1.0,
+    profiles_sample_rate=1.0,)
 
 app = FastAPI(ssl_keyfile=settings.SSL_KEY_FILE_NAME,
               ssl_certfile=settings.SSL_CERTIFICATE_FILE_NAME)
@@ -36,7 +46,7 @@ headers = ['Content-Type',
            'Access-Control-Allow-Origin',
            'Authorization']
 
-logging.basicConfig(format='%(asctime)s %(levelname)s:%(name)s:%(message)s', level=logging.DEBUG)
+
 app.add_middleware(SessionMiddleware, secret_key=middleware_key)
 
 app.add_middleware(CORSMiddleware,
@@ -53,3 +63,12 @@ app.include_router(website)
 async def startup():
     redis = aioredis.from_url("redis://localhost:6379")
     FastAPICache.init(RedisBackend(redis), prefix="cache")
+
+
+@app.middleware("http")
+async def add_process_time_header(request: Request, call_next):
+    start_time = time.time()
+    response = await call_next(request)
+    process_time = time.time() - start_time
+    logger.info('Request execution time', extra={'process_time': round(process_time, 4)})
+    return response
