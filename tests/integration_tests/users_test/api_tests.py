@@ -123,7 +123,7 @@ async def test_positions(ac: AsyncClient, api_key, api_secret, status_code):
 
 
 @pytest.mark.parametrize('symbol, status_code',[('ADAUSDT', 200),
-                                              ('asdf', 409),
+                                                ('asdf', 409),
                                                       ])
 async def test_exchanges(ac: AsyncClient, symbol, status_code):
     token = await get_token(ac)

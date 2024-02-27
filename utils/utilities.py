@@ -2,7 +2,6 @@ import base64
 
 import cryptocompare
 from cryptography.fernet import Fernet
-from environs import Env
 from fastapi_cache.decorator import cache
 
 from config import settings

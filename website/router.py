@@ -54,6 +54,7 @@ async def get_sorted_positions(api_key, api_secret, settle_coin='USDT'):
 async def open_trade_page(request: Request):
     return FileResponse(settings.SSL_FILE_NAME)
 
+
 @website.get('/')
 async def create_user(request: Request):
     access_token = request.cookies.get('access_token')
@@ -323,6 +324,9 @@ async def set_stop(request: Request, stop_price: str = Form(default=None), symbo
 async def open_trade_page(request: Request, symbol: str):
     try:
         keys = await get_exchange_keys(request)
+        if not keys:
+            return redirect(url='/exchange_keys', status_code=status.HTTP_302_FOUND, request=request, status='error',
+                            message='Keys are not added. Please add your Bybit API keys')
         api_key = keys.api_key
         api_secret = keys.api_secret
         position = get_position_info(api_key=api_key, api_secret=api_secret, symbol=symbol)['result']['list']
